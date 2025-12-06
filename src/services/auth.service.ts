@@ -15,12 +15,15 @@ if (!AUTH_API_BASE) {
 /** Login via username and password */
 export async function login(payload: LoginRequest): Promise<LoginApiResponse> {
   try {
-    const response = await fetch(`${AUTH_API_BASE}/api/auth/login`, {
+    const response = await fetch(`${AUTH_API_BASE}/api/logins`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        ...payload,
+        app_name: 'Patients',
+      }),
     })
 
     const data: LoginApiResponse = await response.json()
@@ -50,12 +53,3 @@ export const authService = {
   login,
 }
 
-      id: '',
-      username: payload.username,
-      fullName: payload.username,
-      roles: [],
-    };
-
-    return { tokens, user };
-  },
-};

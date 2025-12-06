@@ -1,13 +1,13 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../providers/AuthProvider';
+import { useAppSelector } from '@/app/hooks';
 import { Spinner } from '@/shared/ui/spinner';
 
 export const ProtectedRoute: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, loading } = useAppSelector((state) => state.auth);
   const location = useLocation();
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Spinner size="lg" />

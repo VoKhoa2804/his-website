@@ -14,20 +14,35 @@ import {
   FieldMessage,
 } from "@/shared/ui/field"
 import { Input } from "@/shared/ui/input"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "@/shared/ui/sonner"
-import { authUsecase } from "./usecase"
-import type { LoginRequest } from "./model"
+import { useAppDispatch, useAppSelector } from "@/app/hooks"
+import { loginThunk, clearError } from "./authSlice"
 
 export function LoginPage({
   onLoginSuccess,
   className,
   ...props
 }: React.ComponentProps<"div"> & { onLoginSuccess?: () => void }) {
-  const [isLoading, setIsLoading] = useState(false)
+  const dispatch = useAppDispatch()
+  const { loading, error } = useAppSelector((state) => state.auth)
+  
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [errors, setErrors] = useState<{ username?: string; password?: string }>({})
+
+  // Clear Redux error when component unmounts or when user starts typing
+  useEffect(() => {
+    return () => {
+      dispatch(clearError())
+    }
+  }, [dispatch])
+
+  useEffect(() => {
+    if (username || password) {
+      dispatch(clearError())
+    }
+  }, [username, password, dispatch])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -42,26 +57,20 @@ export function LoginPage({
       return
     }
 
-    setIsLoading(true)
     try {
-      const loginRequest: LoginRequest = { username, password }
-      await authUsecase.login(loginRequest)
+      const result = await dispatch(loginThunk({ user_name: username, password })).unwrap()
+      
       toast.success("Login successful!", {
-        description: `Welcome back, ${username}`,
+        description: `Welcome back, ${result.user.fullName || username}`,
       })
+      
       setUsername("")
       setPassword("")
       onLoginSuccess?.()
-    } catch (error: any) {
+    } catch (err: any) {
       toast.error("Login failed", {
-        description: error?.message || "Please check your credentials and try again",
+        description: err || "Please check your credentials and try again",
       })
-    //   setErrors((prev) => ({
-    //     ...prev,
-    //     password: error?.message || "Invalid credentials",
-    //   }))
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -109,14 +118,14 @@ export function LoginPage({
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         />
-                        {errors.password && (
-                        <FieldMessage>{errors.password}</FieldMessage>
+                        {(errors.password || error) && (
+                        <FieldMessage>{errors.password || error}</FieldMessage>
                         )}
                     </FieldContainer>
 
                     <FieldContainer>
-                        <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading ? "Signing in..." : "Login"}
+                        <Button type="submit" className="w-full" disabled={loading}>
+                        {loading ? "Signing in..." : "Login"}
                         </Button>
                         <Button variant="outline" type="button" className="w-full">
                         Login with Google
@@ -137,3 +146,4 @@ export function LoginPage({
     </div>
   )
 }
+
