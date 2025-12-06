@@ -1,0 +1,11 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": false,
+  "tsx": true,
+  "baseColor": "slate",
+  "css": "src/index.css",
+  "componentsDir": "src/shared/ui",
+  "utils": "src/shared/utils/cn.ts"
+}
+

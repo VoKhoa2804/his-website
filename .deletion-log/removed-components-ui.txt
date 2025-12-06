@@ -1,0 +1,4 @@
+Removed legacy src/components/ui files (replaced with empty exports).
+Files: button.tsx, card.tsx, dialog.tsx, dropdown-menu.tsx, field.tsx, form.tsx, input.tsx, label.tsx, sonner.tsx, table.tsx
+
+Note: Files were replaced with an empty export so imports will fail if any code still relies on them. Prefer deleting files physically when CI/permissions allow.
