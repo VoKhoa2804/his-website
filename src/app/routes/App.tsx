@@ -6,7 +6,7 @@ import { HomeScreen } from '@/features/home/home'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { checkAuthThunk } from '@/features/auth/authSlice'
 import { Spinner } from '@/shared/ui/spinner'
-import { WorkShiftListPage } from '@/features/caLamViec'
+import { WorkShiftListPage } from '@/features/work-shift'
 
 function App() {
   const dispatch = useAppDispatch()

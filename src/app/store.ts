@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import authReducer from '@/features/auth/authSlice'
-import workShiftReducer from '@/features/caLamViec/model/workShiftSlice'
+import workShiftReducer from '@/features/work-shift/model/workShiftSlice'
 
 export const store = configureStore({
   reducer: {
