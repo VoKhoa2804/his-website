@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -9,10 +9,13 @@ import { DataTable } from './data-table'
 import { columns } from './columns'
 import { useShortcut } from '@/features/shortcuts'
 import { workShiftShortcuts } from '../config/shortcuts'
+import { WorkShiftLookup } from './WorkShiftLookup'
+import type { WorkShift } from '../model/workShiftTypes'
 
 export const WorkShiftListPage: React.FC = () => {
   const navigate = useNavigate()
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const [selectedShift, setSelectedShift] = useState<WorkShift | null>(null)
   const {
     items,
     loading,
@@ -75,6 +78,50 @@ export const WorkShiftListPage: React.FC = () => {
           + Thêm ca làm việc
         </Button>
       </div>
+
+      {/* Lookup Autocomplete Demo */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Tra cứu ca làm việc (Demo)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Chọn ca làm việc</label>
+              <WorkShiftLookup
+                initialId="C1"
+                initialName="C1"
+                onSelect={(shift) => {
+                  setSelectedShift(shift)
+                  if (shift) {
+                    toast.success(`Đã chọn: ${shift.ten}`)
+                  }
+                }}
+              />
+            </div>
+
+            {selectedShift && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Thông tin ca đã chọn</label>
+                <div className="rounded-md border bg-muted/50 p-4 space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Mã ca:</span>
+                    <span>{selectedShift.ma}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Tên ca:</span>
+                    <span>{selectedShift.ten}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Trạng thái:</span>
+                    <span>{selectedShift.hien_thi ? 'Hiển thị' : 'Ẩn'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Results Card */}
       <Card>
