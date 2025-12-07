@@ -28,12 +28,14 @@ interface DataTableProps<TData, TValue> {
     onEdit: (id: string) => void
     onDelete: (id: string) => void
   }
+  searchInputRef?: React.RefObject<HTMLInputElement | null>
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   meta,
+  searchInputRef,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -56,6 +58,7 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4">
       <div className="flex items-center gap-3">
         <Input
+          ref={searchInputRef}
           placeholder="Tìm mã / tên ca..."
           value={(table.getColumn("ma")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
