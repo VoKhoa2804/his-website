@@ -20,6 +20,7 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios'
 import type { ApiError, ApiResponse, ExtendedAxiosConfig } from './types'
 import { getAccessToken, getRefreshToken, saveTokens, clearTokens } from '@/shared/utils/token'
+import { toast } from '@/shared/ui/sonner'
 
 // Environment configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_AUTH_API_BASE || 'http://localhost:3000'
@@ -210,9 +211,37 @@ baseApi.interceptors.response.use(
 
     // Create unified error object
     const apiError = createApiError(error)
+      // ⭐ Hiển thị toast lỗi
+    showErrorToast(apiError)
+    
     return Promise.reject(apiError)
   }
 )
+/**
+ * show error toast notification
+ */
+function showErrorToast(error: ApiError) {
+  // Chạy trên browser thôi, tránh vướng SSR
+  if (typeof window === 'undefined') return
+
+  // Tuỳ biến thông điệp 401/403
+  if (error.status === 401 || error.status === 403) {
+    toast.error('Phiên đăng nhập đã hết hạn', {
+      description: 'Vui lòng đăng nhập lại để tiếp tục.',
+    })
+    return
+  }
+
+  // Các lỗi mạng / timeout / khác
+  const title =
+    error.status === 0
+      ? 'Lỗi kết nối'
+      : `Lỗi ${typeof error.code === 'number' ? error.code : error.status}`
+
+  toast.error(title, {
+    description: error.message,
+  })
+}
 
 /**
  * Create unified API error object

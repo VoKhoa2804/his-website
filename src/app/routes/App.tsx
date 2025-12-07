@@ -7,6 +7,8 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { checkAuthThunk } from '@/features/auth/authSlice'
 import { Spinner } from '@/shared/ui/spinner'
 import { WorkShiftListPage } from '@/features/caLamViec'
+import { HangHoaPage } from '@/features/hanghoa/hangHoaPage'
+
 
 function App() {
   const dispatch = useAppDispatch()
@@ -35,11 +37,19 @@ function App() {
       {isAuthenticated ? (
         <>
           <Routes>
-            <Route path="/" element={<WorkShiftListPage />} />
+            <Route path="/hanghoas" element={<HangHoaPage />} />
+            <Route path="/calamviec" element={<WorkShiftListPage />} />
+            <Route path="/" element={<HomeScreen />} />
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-          <Toaster />
+          <Toaster  
+            position="top-right"  // ⭐ HIỂN THỊ GÓC PHẢI
+            richColors
+            closeButton
+            expand={false}
+            //duration={3000} 
+            />
         </>
       ) : (
         <>
