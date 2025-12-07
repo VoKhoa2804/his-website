@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { checkAuthThunk } from '@/features/auth/authSlice'
 import { Spinner } from '@/shared/ui/spinner'
 import { WorkShiftListPage } from '@/features/work-shift'
-import { HangHoaPage } from '@/features/hanghoa/hangHoaPage'
+import { HangHoaPage } from '@/features/hanghoa/HangHoaPage'
 
 
 function App() {

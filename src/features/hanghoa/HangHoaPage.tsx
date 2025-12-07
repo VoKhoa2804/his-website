@@ -6,7 +6,7 @@ import { Spinner } from "@/shared/ui/spinner"
 import { toast } from "@/shared/ui/sonner"
 import { columns } from "./columns"
 import { useHangHoas } from "./useHangHoas"
-import { DataTable } from "../caLamViec/ui/data-table"
+import { DataTable } from "../work-shift/ui/data-table"
 
 export const HangHoaPage: React.FC = () => {
   const navigate = useNavigate()
