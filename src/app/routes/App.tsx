@@ -8,6 +8,7 @@ import { checkAuthThunk } from '@/features/auth/authSlice'
 import { Spinner } from '@/shared/ui/spinner'
 import { WorkShiftListPage } from '@/features/work-shift'
 import { HangHoaPage } from '@/features/hanghoa/HangHoaPage'
+import { TiepNhanPage } from '@/features/tiepnhan/TiepNhanPage'
 
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
       {isAuthenticated ? (
         <>
           <Routes>
+            <Route path="/tiepnhan" element={<TiepNhanPage />} />
             <Route path="/hanghoas" element={<HangHoaPage />} />
             <Route path="/calamviec" element={<WorkShiftListPage />} />
             <Route path="/" element={<HomeScreen />} />

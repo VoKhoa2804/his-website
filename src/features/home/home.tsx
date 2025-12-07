@@ -55,7 +55,7 @@ const FEATURES: Feature[] = [
     label: 'Quản lý tiếp đón',
     Icon: UserPlus,
     children: [
-      { id: 'tiep_don', label: 'Tiếp đón', path: '/registration' },
+      { id: 'tiep_don', label: 'Tiếp đón', path: '/tiepnhan' },
       {
         id: 'ds_bn_tiep_don',
         label: 'Danh sách người bệnh đã tiếp đón',
