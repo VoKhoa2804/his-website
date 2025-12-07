@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -7,9 +7,12 @@ import { toast } from '@/shared/ui/sonner'
 import { useWorkShifts } from '../hooks/useWorkShifts'
 import { DataTable } from './data-table'
 import { columns } from './columns'
+import { useShortcut } from '@/features/shortcuts'
+import { workShiftShortcuts } from '../config/shortcuts'
 
 export const WorkShiftListPage: React.FC = () => {
   const navigate = useNavigate()
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const {
     items,
     loading,
@@ -22,6 +25,28 @@ export const WorkShiftListPage: React.FC = () => {
   useEffect(() => {
     loadWorkShifts()
   }, [loadWorkShifts])
+
+  // Keyboard shortcuts
+  useShortcut(
+    workShiftShortcuts.create.keys,
+    () => navigate('/ca-lam-viec/create'),
+    workShiftShortcuts.create
+  )
+
+  useShortcut(
+    workShiftShortcuts.search.keys,
+    () => searchInputRef.current?.focus(),
+    workShiftShortcuts.search
+  )
+
+  useShortcut(
+    workShiftShortcuts.refresh.keys,
+    () => {
+      loadWorkShifts()
+      toast.success('Đã làm mới danh sách')
+    },
+    workShiftShortcuts.refresh
+  )
 
   // Handle delete with confirmation
   const handleDelete = async (id: string) => {
@@ -73,6 +98,7 @@ export const WorkShiftListPage: React.FC = () => {
             <DataTable
               columns={columns}
               data={items}
+              searchInputRef={searchInputRef}
               meta={{
                 onEdit: handleEdit,
                 onDelete: handleDelete,

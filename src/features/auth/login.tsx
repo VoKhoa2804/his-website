@@ -18,6 +18,8 @@ import { useState, useEffect } from "react"
 import { toast } from "@/shared/ui/sonner"
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
 import { loginThunk, clearError } from "./authSlice"
+import { useShortcut } from "@/features/shortcuts"
+import { authShortcuts } from "./config/shortcuts"
 
 export function LoginPage({
   onLoginSuccess,
@@ -73,6 +75,18 @@ export function LoginPage({
       })
     }
   }
+
+  // Keyboard shortcut for form submission
+  useShortcut(
+    authShortcuts.submitLogin.keys,
+    (event) => {
+      event.preventDefault()
+      // Trigger form submission by calling handleSubmit without the event
+      const syntheticEvent = { preventDefault: () => {} } as React.FormEvent
+      handleSubmit(syntheticEvent)
+    },
+    authShortcuts.submitLogin
+  )
 
   return (
      <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
