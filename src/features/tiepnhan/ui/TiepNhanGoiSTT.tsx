@@ -13,19 +13,24 @@ export function TiepNhanGoiSTT() {
   const [calledCount] = useState<number>(12);
 
   return (
-    <Card className="bg-gray-900 border border-gray-700 text-gray-100">
-      {/* Header */}
-      <CardHeader className="flex flex-row items-center gap-2 pb-3 pt-2 px-4">
-        <Clock className="w-4 h-4 text-gray-400" />
-        <CardTitle className="text-sm font-semibold text-white">
-          Chọn quầy
-        </CardTitle>
+      <Card className="border border-gray-300 shadow-sm h-full">
+      {/* HEADER */}
+      <CardHeader className="bg-sky-700 text-white px-4 py-3">
+         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="text-sm sm:text-xs font-bold tracking-wide flex items-center gap-2">
+            <Clock className="w-4 h-4 text-white" />
+            THÔNG TIN GỌI SỐ
+          </CardTitle>
+          {/* <CardDescription className="text-[11px] text-white/80">
+            Kiểm tra kỹ thông tin trước khi lưu
+          </CardDescription> */}
+        </div>
+        
       </CardHeader>
 
-      <CardContent className="px-4 pb-4 pt-0 space-y-3">
-        {/* 1. Quầy tự chọn */}
-        <div className="space-y-1.5">
-          <Label className="text-xs text-gray-300">Quầy tự chọn</Label>
+      {/* BODY */}
+      <CardContent className="p-3 sm:p-4 space-y-4">
+<Field label="Quầy gọi số">
           <Select
             value={selectedCounter}
             onValueChange={(value) => {
@@ -37,63 +42,43 @@ export function TiepNhanGoiSTT() {
               }
             }}
           >
-            <SelectTrigger className="h-8 bg-gray-800 border-gray-700 text-xs">
-              <SelectValue placeholder="Chọn quầy làm việc" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-900 border-gray-700 text-xs">
-              <SelectItem value="auto">Quầy tự chọn</SelectItem>
-              <SelectItem value="1">Quầy 01</SelectItem>
-              <SelectItem value="2">Quầy 02</SelectItem>
-              <SelectItem value="3">Quầy 03</SelectItem>
-              <SelectItem value="4">Quầy 04</SelectItem>
-            </SelectContent>
+           <SelectTrigger className="h-8 text-xs bg-white">
+                  <SelectValue placeholder="Chọn buồng khám" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pk-01">PK 01</SelectItem>
+                  <SelectItem value="pk-02">PK 02</SelectItem>
+                  <SelectItem value="pk-03">PK 03</SelectItem>
+                </SelectContent>
           </Select>
+        </Field>
+
+        <div className="grid grid-cols-2 gap-2">
+
+        <Field label="Quầy gọi số">
+          <Select
+            value={selectedCounter}
+            onValueChange={(value) => {
+              setSelectedCounter(value);
+              if (value === "auto") {
+                setCurrentCounter("Quầy 01");
+              } else {
+                setCurrentCounter(`Quầy ${value.padStart(2, "0")}`);
+              }
+            }}
+          >
+           <SelectTrigger className="h-8 text-xs bg-white">
+                  <SelectValue placeholder="Chọn buồng khám" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pk-01">PK 01</SelectItem>
+                  <SelectItem value="pk-02">PK 02</SelectItem>
+                  <SelectItem value="pk-03">PK 03</SelectItem>
+                </SelectContent>
+          </Select>
+        </Field>
+            <Label className="text-xs text-gray-300">Số hiện tai : 909</Label>
         </div>
-
-        {/* 2. Thông tin quầy & số lượng NB */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <Label className="text-xs text-gray-300">Quầy đang làm việc</Label>
-            <Input
-              readOnly
-              value={currentCounter}
-              className="h-8 bg-gray-800 border-gray-700 text-xs text-gray-100"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs text-gray-300">
-              Số NB đang chờ tại quầy
-            </Label>
-            <Input
-              readOnly
-              value={waitingCount}
-              className="h-8 bg-gray-800 border-gray-700 text-xs text-right"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <Label className="text-xs text-gray-300">
-              Số NB đã được gọi
-            </Label>
-            <Input
-              readOnly
-              value={calledCount}
-              className="h-8 bg-gray-800 border-gray-700 text-xs text-right"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs text-gray-300">Ghi chú</Label>
-            <Input
-              placeholder="Ghi chú thêm..."
-              className="h-8 bg-gray-800 border-gray-700 text-xs placeholder:text-gray-500"
-            />
-          </div>
-        </div>
-
         {/* 3. Nút thao tác */}
         <div className="flex gap-2 pt-2">
           <Button
@@ -115,3 +100,31 @@ export function TiepNhanGoiSTT() {
     </Card>
   );
 }
+
+function Field({
+  label,
+  children,
+  required,
+}: {
+  label: string;
+  children: React.ReactNode;
+  required?: boolean;
+}) {
+  // Tách sao nếu label có *
+  const hasStar = label.includes("*");
+  const cleanLabel = hasStar ? label.replace("*", "").trim() : label;
+
+  return (
+    <div className="space-y-1">
+      <Label className="text-[13px] sm:text-sm md:text-base text-gray-700 flex items-center gap-1">
+        {cleanLabel}
+        {(required || hasStar) && (
+          <span className="text-red-600">*</span>
+        )}
+      </Label>
+
+      {children}
+    </div>
+  );
+}
+

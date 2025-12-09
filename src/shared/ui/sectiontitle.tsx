@@ -30,7 +30,7 @@ export function SectionTitle({
       <Icon className={cn("w-3.5 h-3.5", iconColor)} />
 
       {/* Label */}
-      <span className="text-xs font-semibold text-gray-700 tracking-wide">
+      <span className="text-lg font-semibold text-gray-700 tracking-wide">
         {label}
       </span>
 

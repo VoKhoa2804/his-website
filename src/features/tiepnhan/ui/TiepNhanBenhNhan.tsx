@@ -52,10 +52,7 @@ export function TiepNhanBenhNhan() {
 
       {/* BODY */}
       <CardContent className="p-4 space-y-6">
-        {/* 1. THÔNG TIN ĐỊNH DANH */}
-        <SectionTitle label="Thông tin định danh" icon={User} />
-
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-6 gap-3">
           {/* Số điện thoại */}
           <Field label="Số điện thoại">
             <Input
@@ -63,25 +60,46 @@ export function TiepNhanBenhNhan() {
               onChange={(e) =>
                 setFormData({ ...formData, phoneNumber: e.target.value })
               }
-              className="h-8 text-xs"
               placeholder="Nhập số điện thoại"
             />
           </Field>
 
           {/* Họ và tên */}
-          <Field label="Họ và tên" required>
-            <Input
-              value={formData.fullName}
-              onChange={(e) =>
-                setFormData({ ...formData, fullName: e.target.value })
-              }
-              className="h-8 text-xs"
-              placeholder="Nhập họ và tên"
-            />
-          </Field>
+          <div className="col-span-2">
+            <Field label="Họ và tên" required>
+              <Input
+                value={formData.fullName}
+                onChange={(e) =>
+                  setFormData({ ...formData, fullName: e.target.value })
+                }
+                placeholder="Nhập họ và tên"
+              />
+            </Field>
+          </div>
 
+
+          <Field label="Giới tính" required>
+            <Select
+              value={formData.gender}
+              onValueChange={(value) =>
+                setFormData({ ...formData, gender: value })
+              }
+            >
+              <SelectTrigger className="h-8 text-xs bg-white">
+                <SelectValue placeholder="Chọn" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Nam">Nam</SelectItem>
+                <SelectItem value="Nữ">Nữ</SelectItem>
+                <SelectItem value="Khác">Khác</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
           {/* Ngày sinh */}
-          <Field label="Ngày tháng năm sinh" required>
+
+
+          {/* Giờ sinh + Tuổi + Giới tính */}
+          <Field label="Ngày sinh" required>
             <Input
               type="date"
               value={formData.dateOfBirth}
@@ -92,141 +110,49 @@ export function TiepNhanBenhNhan() {
             />
           </Field>
 
-          {/* Giờ sinh + Tuổi + Giới tính */}
-          <div className="grid grid-cols-3 gap-2">
-            <Field label="Giờ sinh">
-              <Input
-                value={formData.birthTime}
-                onChange={(e) =>
-                  setFormData({ ...formData, birthTime: e.target.value })
-                }
-                className="h-8 text-xs text-center"
-              />
-            </Field>
-
-            <Field label="Tuổi">
-              <Input
-                value={formData.age}
-                readOnly
-                className="h-8 text-xs text-center bg-gray-50 text-gray-600"
-              />
-            </Field>
-
-            <Field label="Giới tính" required>
-              <Select
-                value={formData.gender}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, gender: value })
-                }
-              >
-                <SelectTrigger className="h-8 text-xs bg-white">
-                  <SelectValue placeholder="Chọn" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Nam">Nam</SelectItem>
-                  <SelectItem value="Nữ">Nữ</SelectItem>
-                  <SelectItem value="Khác">Khác</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-          </div>
-
-          {/* Địa chỉ thường trú */}
-          <Field label="Số nhà / Thôn / Xóm">
-            <Input
-              value={formData.houseNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, houseNumber: e.target.value })
-              }
-              className="h-8 text-xs"
-              placeholder="VD: 12/3 KP3"
-            />
-          </Field>
-
-          <Field label="Phường/Xã, Quận/Huyện, Tỉnh/TP" required>
-            <Input
-              value={formData.ward}
-              onChange={(e) =>
-                setFormData({ ...formData, ward: e.target.value })
-              }
-              placeholder="VD: P.5, Q.11, TP.HCM"
-              className="h-8 text-xs"
-            />
-          </Field>
-
-          {/* Địa chỉ tạm trú */}
-          <Field label="Tạm trú - Số nhà / Thôn / Xóm">
-            <Input
-              value={formData.tempHouseNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, tempHouseNumber: e.target.value })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-
-          <Field label="Tạm trú - Phường/Xã, Quận/Huyện, Tỉnh/TP">
-            <Input
-              value={formData.tempWard}
-              onChange={(e) =>
-                setFormData({ ...formData, tempWard: e.target.value })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-
-          {/* Giấy tờ tùy thân */}
-          <Field label="Loại giấy tờ tùy thân">
+          {/* Dân tộc */}
+          <Field label="Quốc tịch" required>
             <Select
-              value={formData.idType}
+              value={formData.ethnicity}
               onValueChange={(value) =>
-                setFormData({ ...formData, idType: value })
+                setFormData({ ...formData, ethnicity: value })
               }
             >
               <SelectTrigger className="h-8 text-xs bg-white">
-                <SelectValue placeholder="Chọn loại" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="CCCD">Căn cước công dân</SelectItem>
-                <SelectItem value="CMND">CMND</SelectItem>
-                <SelectItem value="Passport">Passport</SelectItem>
-                <SelectItem value="Khác">Khác</SelectItem>
+                <SelectItem value="Kinh">Kinh</SelectItem>
+                <SelectItem value="Tày">Tày</SelectItem>
+                <SelectItem value="Hoa">Hoa</SelectItem>
               </SelectContent>
             </Select>
           </Field>
+          {/* Địa chỉ thường trú */}
+          <div className="col-span-2">
+            <Field label="Số nhà / Thôn / Xóm">
+              <Input
+                value={formData.houseNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, houseNumber: e.target.value })
+                }
+                className="h-8 text-xs"
+                placeholder="VD: 12/3 KP3"
+              />
+            </Field>
+          </div>
 
-          <Field label="Số giấy tờ">
-            <Input
-              value={formData.idNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, idNumber: e.target.value })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-
-          <Field label="Ngày cấp">
-            <Input
-              type="date"
-              value={formData.issueDate}
-              onChange={(e) =>
-                setFormData({ ...formData, issueDate: e.target.value })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-
-          <Field label="Nơi cấp">
-            <Input
-              value={formData.issuePlace}
-              onChange={(e) =>
-                setFormData({ ...formData, issuePlace: e.target.value })
-              }
-              className="h-8 text-xs"
-              placeholder="VD: TP.HCM"
-            />
-          </Field>
-
+          <div className="col-span-3">
+            <Field label="Tạm trú - Phường/Xã, Quận/Huyện, Tỉnh/TP">
+              <Input
+                value={formData.tempWard}
+                onChange={(e) =>
+                  setFormData({ ...formData, tempWard: e.target.value })
+                }
+                className="h-8 text-xs"
+              />
+            </Field>
+          </div>
           {/* Nghề nghiệp */}
           <Field label="Nghề nghiệp" required>
             <Select
@@ -247,6 +173,42 @@ export function TiepNhanBenhNhan() {
             </Select>
           </Field>
 
+
+
+          {/* Giấy tờ tùy thân */}
+          <Field label="CCCD/Hộ chiếu" required>
+            <Input
+              value={formData.idNumber}
+              onChange={(e) =>
+                setFormData({ ...formData, idNumber: e.target.value })
+              }
+            />
+          </Field>
+
+          <Field label="Ngày cấp">
+            <Input
+              type="date"
+              value={formData.issueDate}
+              onChange={(e) =>
+                setFormData({ ...formData, issueDate: e.target.value })
+              }
+              className="h-8 text-xs"
+            />
+          </Field>
+          <div className="col-span-3">
+            <Field label="Nơi cấp">
+              <Input
+                value={formData.issuePlace}
+                onChange={(e) =>
+                  setFormData({ ...formData, issuePlace: e.target.value })
+                }
+                className="h-8 text-xs"
+                placeholder="VD: TP.HCM"
+              />
+            </Field>
+          </div>
+
+
           {/* Dân tộc */}
           <Field label="Dân tộc" required>
             <Select
@@ -266,14 +228,6 @@ export function TiepNhanBenhNhan() {
             </Select>
           </Field>
 
-          {/* Quốc tịch */}
-          <Field label="Quốc tịch" required>
-            <Input
-              value={formData.nationality}
-              readOnly
-              className="h-8 text-xs bg-gray-50"
-            />
-          </Field>
         </div>
 
         {/* 2. THÔNG TIN LIÊN HỆ & NGƯỜI THÂN */}
@@ -282,34 +236,8 @@ export function TiepNhanBenhNhan() {
           icon={Phone}
         />
 
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="SĐT người liên hệ">
-            <Input
-              value={formData.contactPhoneNumber}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  contactPhoneNumber: e.target.value,
-                })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-
-          <Field label="Tên người liên hệ">
-            <Input
-              value={formData.contactFullName}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  contactFullName: e.target.value,
-                })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-
-          <Field label="Mối quan hệ với NB">
+        <div className="grid grid-cols-6 gap-3">
+           <Field label="Quan hệ với NB">
             <Select
               value={formData.relationship}
               onValueChange={(value) =>
@@ -328,68 +256,33 @@ export function TiepNhanBenhNhan() {
             </Select>
           </Field>
 
-          <Field label="Người giám hộ (nếu có)">
+          <Field label="Tên người liên hệ">
             <Input
-              value={formData.guardian}
+              value={formData.contactFullName}
               onChange={(e) =>
-                setFormData({ ...formData, guardian: e.target.value })
+                setFormData({
+                  ...formData,
+                  contactFullName: e.target.value,
+                })
               }
               className="h-8 text-xs"
             />
           </Field>
+
+          <Field label="SĐT người liên hệ">
+            <Input
+              value={formData.contactPhoneNumber}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  contactPhoneNumber: e.target.value,
+                })
+              }
+              className="h-8 text-xs"
+            />
+          </Field>
+
         </div>
-
-        {/* 3. THÔNG TIN HỌC SINH / NƠI LÀM VIỆC */}
-        <SectionTitle
-          label="Thông tin học sinh / nơi làm việc"
-          icon={Building2}
-        />
-
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Nơi làm việc">
-            <Input
-              value={formData.workplace}
-              onChange={(e) =>
-                setFormData({ ...formData, workplace: e.target.value })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-
-          <Field label="Tên trường học">
-            <Input
-              value={formData.schoolName}
-              onChange={(e) =>
-                setFormData({ ...formData, schoolName: e.target.value })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-
-          <Field label="Lớp">
-            <Input
-              value={formData.className}
-              onChange={(e) =>
-                setFormData({ ...formData, className: e.target.value })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-
-          <Field label="Mã HS/SV">
-            <Input
-              value={formData.studentCode}
-              onChange={(e) =>
-                setFormData({ ...formData, studentCode: e.target.value })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-        </div>
-
-        {/* 4. GIẤY TỜ TÙY THÂN (OPTION) */}
-        <SectionTitle label="Giấy tờ tùy thân bổ sung" icon={IdCard} />
-        {/* Nếu sau này anh cần thêm trường, có thể thêm vào đây */}
       </CardContent>
     </Card>
   );
@@ -398,7 +291,6 @@ export function TiepNhanBenhNhan() {
 /* ============================== */
 /* COMPONENT TÁI SỬ DỤNG          */
 /* ============================== */
-
 function Field({
   label,
   children,
@@ -408,12 +300,21 @@ function Field({
   children: React.ReactNode;
   required?: boolean;
 }) {
+  // Tách sao nếu label có *
+  const hasStar = label.includes("*");
+  const cleanLabel = hasStar ? label.replace("*", "").trim() : label;
+
   return (
     <div className="space-y-1">
-      <Label className="text-xs text-gray-700">
-        {label} {required && <span className="text-red-600">*</span>}
+      <Label className="text-[13px] sm:text-sm md:text-base text-gray-700 flex items-center gap-1">
+        {cleanLabel}
+        {(required || hasStar) && (
+          <span className="text-red-600">*</span>
+        )}
       </Label>
+
       {children}
     </div>
   );
 }
+
