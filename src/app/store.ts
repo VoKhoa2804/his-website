@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import authReducer from '@/features/auth/authSlice'
 import workShiftReducer from '@/features/work-shift/model/workShiftSlice'
+import { clinicReducer } from '@/features/clinic'
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     workShift: workShiftReducer,
+    clinic: clinicReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

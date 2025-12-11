@@ -7,6 +7,8 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { checkAuthThunk } from '@/features/auth/authSlice'
 import { Spinner } from '@/shared/ui/spinner'
 import { WorkShiftListPage } from '@/features/work-shift'
+import { ClinicListPage } from '@/features/clinic'
+import { MainLayout } from '@/layouts/MainLayout'
 
 function App() {
   const dispatch = useAppDispatch()
@@ -35,7 +37,10 @@ function App() {
       {isAuthenticated ? (
         <>
           <Routes>
-            <Route path="/" element={<WorkShiftListPage />} />
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<WorkShiftListPage />} />
+              <Route path="/phong-kham" element={<ClinicListPage />} />
+            </Route>
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
