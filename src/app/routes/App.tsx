@@ -7,6 +7,8 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { checkAuthThunk } from '@/features/auth/authSlice'
 import { Spinner } from '@/shared/ui/spinner'
 import { WorkShiftListPage } from '@/features/work-shift'
+import { HangHoaPage } from '@/features/hanghoa/HangHoaPage'
+import { TiepNhanPage } from '@/features/tiepnhan/TiepNhanPage'
 import { ClinicListPage } from '@/features/clinic'
 import { MainLayout } from '@/layouts/MainLayout'
 
@@ -38,13 +40,22 @@ function App() {
         <>
           <Routes>
             <Route element={<MainLayout />}>
-              <Route path="/" element={<WorkShiftListPage />} />
               <Route path="/phong-kham" element={<ClinicListPage />} />
+              <Route path="/tiepnhan" element={<TiepNhanPage />} />
+              <Route path="/hanghoas" element={<HangHoaPage />} />
+              <Route path="/calamviec" element={<WorkShiftListPage />} />
+              <Route path="/" element={<HomeScreen />} />
             </Route>
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-          <Toaster />
+          <Toaster  
+            position="top-right"  // ⭐ HIỂN THỊ GÓC PHẢI
+            richColors
+            closeButton
+            expand={false}
+            //duration={3000} 
+            />
         </>
       ) : (
         <>
