@@ -57,3 +57,31 @@
     background-color: hsl(var(--background));
   }
 }
+
+/* EMR-style medical input fields */
+.medical-input {
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px dotted #d1d5db;
+  border-radius: 0;
+  padding: 4px 8px;
+  transition: border-color 0.2s;
+}
+
+.medical-input:focus {
+  outline: none;
+  border-bottom: 1px solid #3b82f6;
+  background-color: #eff6ff;
+}
+
+.medical-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f9fafb;
+}
+
+.medical-input::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
