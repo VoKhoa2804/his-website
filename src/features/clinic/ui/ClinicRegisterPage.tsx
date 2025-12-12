@@ -69,7 +69,7 @@ export function ClinicRegisterPage() {
   };
 
   return (
-    <div className="h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header Bar */}
       <div className="h-14 bg-gradient-to-r from-blue-600 to-blue-800 shadow-md flex items-center justify-between px-6 flex-shrink-0">
         <div className="flex items-center gap-4">
@@ -91,9 +91,9 @@ export function ClinicRegisterPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex">
         {/* Left Panel */}
-        <div className="w-80 bg-white border-r border-gray-200 overflow-y-auto p-4 flex-shrink-0">
+        <div className="w-80 bg-white border-r border-gray-200 p-4 flex-shrink-0">
         <PatientInfoCard {...patientData} />
         <DepartmentTags
           departments={departments}
@@ -106,7 +106,7 @@ export function ClinicRegisterPage() {
       </div>
 
         {/* Right Panel - Main Content */}
-        <div className="flex-1 overflow-y-auto py-6 px-6">
+        <div className="flex-1 py-6 px-6">
           <div className="w-full">
             <AdministrativeInfoSection />
             <VitalSignsSection />

@@ -16,7 +16,7 @@ export function VisitHistoryList({ visits, onVisitClick }: VisitHistoryListProps
   return (
     <div>
       <h4 className="text-xs font-medium text-gray-700 mb-2">Lịch sử khám:</h4>
-      <div className="space-y-2 max-h-64 overflow-y-auto">
+      <div className="space-y-2">
         {visits.map((visit) => (
           <button
             key={visit.id}
