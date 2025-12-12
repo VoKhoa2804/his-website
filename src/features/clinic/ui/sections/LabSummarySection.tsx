@@ -59,7 +59,7 @@ export function LabSummarySection() {
         </table>
       </div>
 
-      <LongTextField label="Kết luận" rows={3} />
+      <LongTextField label="Kết luận" />
     </div>
   );
 }

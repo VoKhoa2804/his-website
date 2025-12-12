@@ -23,7 +23,7 @@ export function ExamDetailsSection() {
         <InlineField label="Loại khám" width="w-40" />
       </FieldRow>
 
-      <LongTextField label="Ghi chú" rows={2} />
+      <LongTextField label="Ghi chú" />
     </div>
   );
 }

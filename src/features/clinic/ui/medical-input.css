@@ -13,6 +13,8 @@
   font-size: 0.875rem; /* 14px - easier to read */
   line-height: 1.25rem;
   transition: all 0.15s ease-in-out;
+  width: 100%;
+  min-width: 0; /* CRITICAL: allows input to shrink within flex/grid container */
 }
 
 .medical-input:focus {

@@ -3,6 +3,7 @@ interface InlineFieldProps {
   placeholder?: string;
   required?: boolean;
   width?: string;
+  className?: string;
   value?: string;
   onChange?: (value: string) => void;
 }
@@ -12,17 +13,18 @@ export function InlineField({
   placeholder,
   required,
   width,
+  className,
   value,
   onChange,
 }: InlineFieldProps) {
   return (
-    <div className="flex items-center gap-3 min-w-0">
-      <span className="text-xs text-gray-700 whitespace-nowrap font-medium">
+    <div className={`flex items-center gap-2 min-w-0 w-full ${className || ''}`}>
+      <label className="text-xs text-gray-700 font-medium shrink-0 whitespace-nowrap" style={{ minWidth: '80px' }}>
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}:
-      </span>
+      </label>
       <input
-        className={`medical-input ${width || 'flex-1'}`}
+        className="medical-input flex-1 min-w-0"
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange?.(e.target.value)}

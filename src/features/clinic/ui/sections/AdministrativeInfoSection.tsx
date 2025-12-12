@@ -1,54 +1,47 @@
 import { SectionTitle } from '../components/SectionTitle';
 import { InlineField } from '../components/InlineField';
-import { FieldRow } from '../components/FieldRow';
 
 export function AdministrativeInfoSection() {
   return (
     <div className="bg-white border border-gray-300 rounded-lg p-5 mb-5">
       <SectionTitle number="I" title="HÀNH CHÍNH" />
 
-      <FieldRow>
-        <InlineField label="Họ và tên" required width="flex-1" />
-        <InlineField label="Ngày sinh" required width="w-32" />
-        <InlineField label="Tuổi" width="w-16" />
-      </FieldRow>
+      <div className="grid grid-cols-3 gap-x-8 gap-y-3">
+        {/* Row 1 */}
+        <InlineField label="Họ và tên" required />
+        <InlineField label="Ngày sinh" required />
+        <InlineField label="Tuổi" />
 
-      <FieldRow>
-        <InlineField label="Giới tính" required width="w-32" />
-        <InlineField label="Dân tộc" width="w-32" />
-        <InlineField label="Quốc tịch" width="flex-1" />
-      </FieldRow>
+        {/* Row 2 */}
+        <InlineField label="Giới tính" required />
+        <InlineField label="Dân tộc" />
+        <InlineField label="Quốc tịch" />
 
-      <FieldRow>
-        <InlineField label="Nghề nghiệp" width="flex-1" />
-        <InlineField label="Nơi làm việc" width="flex-1" />
-      </FieldRow>
+        {/* Row 3 */}
+        <InlineField label="Nghề nghiệp" />
+        <InlineField label="Nơi làm việc" className="col-span-2" />
 
-      <FieldRow>
-        <InlineField label="CMND/CCCD" required width="flex-1" />
-        <InlineField label="Ngày cấp" width="w-32" />
-        <InlineField label="Nơi cấp" width="w-40" />
-      </FieldRow>
+        {/* Row 4 */}
+        <InlineField label="CMND/CCCD" required />
+        <InlineField label="Ngày cấp" />
+        <InlineField label="Nơi cấp" />
 
-      <FieldRow>
-        <InlineField label="Địa chỉ thường trú" required width="flex-1" />
-      </FieldRow>
+        {/* Row 5 */}
+        <InlineField label="Địa chỉ thường trú" required className="col-span-3" />
 
-      <FieldRow>
-        <InlineField label="Tỉnh/TP" required width="flex-1" />
-        <InlineField label="Quận/Huyện" required width="flex-1" />
-        <InlineField label="Xã/Phường" required width="flex-1" />
-      </FieldRow>
+        {/* Row 6 */}
+        <InlineField label="Tỉnh/TP" required />
+        <InlineField label="Quận/Huyện" required />
+        <InlineField label="Xã/Phường" required />
 
-      <FieldRow>
-        <InlineField label="Điện thoại" required width="w-40" />
-        <InlineField label="Email" width="flex-1" />
-      </FieldRow>
+        {/* Row 7 */}
+        <InlineField label="Điện thoại" required />
+        <InlineField label="Email" className="col-span-2" />
 
-      <FieldRow>
-        <InlineField label="Người liên hệ" width="flex-1" />
-        <InlineField label="SĐT người liên hệ" width="w-40" />
-      </FieldRow>
+        {/* Row 8 */}
+        <InlineField label="Người liên hệ" className="col-span-2" />
+        <InlineField label="SĐT người liên hệ" />
+      </div>
     </div>
   );
 }

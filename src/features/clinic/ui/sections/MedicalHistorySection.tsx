@@ -6,11 +6,11 @@ export function MedicalHistorySection() {
     <div className="bg-white border border-gray-300 rounded-lg p-5 mb-5">
       <SectionTitle number="III" title="HỎI BỆNH" />
 
-      <LongTextField label="Lý do khám" rows={2} />
-      <LongTextField label="Bệnh sử" rows={3} />
-      <LongTextField label="Tiền sử bệnh" rows={2} />
-      <LongTextField label="Tiền sử gia đình" rows={2} />
-      <LongTextField label="Dị ứng" rows={2} />
+      <LongTextField label="Lý do khám" />
+      <LongTextField label="Bệnh sử" />
+      <LongTextField label="Tiền sử bệnh" />
+      <LongTextField label="Tiền sử gia đình" />
+      <LongTextField label="Dị ứng" />
     </div>
   );
 }

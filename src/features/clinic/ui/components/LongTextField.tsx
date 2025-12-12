@@ -1,3 +1,5 @@
+import { AutoResizeTextarea } from '@/shared/ui/auto-resize-textarea';
+
 interface LongTextFieldProps {
   label: string;
   placeholder?: string;
@@ -11,7 +13,6 @@ export function LongTextField({
   label,
   placeholder,
   required,
-  rows,
   value,
   onChange,
 }: LongTextFieldProps) {
@@ -21,9 +22,8 @@ export function LongTextField({
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}:
       </label>
-      <textarea
-        className="w-full medical-input min-h-[60px] resize-none p-2"
-        rows={rows || 3}
+      <AutoResizeTextarea
+        className="w-full medical-input min-h-[32px] p-2"
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange?.(e.target.value)}

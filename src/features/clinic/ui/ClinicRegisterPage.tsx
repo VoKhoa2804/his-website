@@ -107,7 +107,7 @@ export function ClinicRegisterPage() {
 
         {/* Right Panel - Main Content */}
         <div className="flex-1 overflow-y-auto py-6 px-6">
-          <div className="max-w-5xl mx-auto">
+          <div className="w-full">
             <AdministrativeInfoSection />
             <VitalSignsSection />
             <MedicalHistorySection />
