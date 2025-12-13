@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { User, Phone, Building2, IdCard } from "lucide-react";
+import { Phone } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { SectionTitle } from "@/shared/ui/sectiontitle";
 import { Label } from "@/shared/ui/label";
+import { OccupationLookup } from "./OccupationLookup";
 
 export function TiepNhanBenhNhan() {
   const [formData, setFormData] = useState({
@@ -72,7 +73,7 @@ export function TiepNhanBenhNhan() {
           <Field label="Giới tính" required>
             <Select
               value={formData.gender}
-              onValueChange={(value) =>
+              onValueChange={(value: string) =>
                 setFormData({ ...formData, gender: value })
               }
             >
@@ -175,22 +176,14 @@ export function TiepNhanBenhNhan() {
           {/* Nghề nghiệp */}
           <div className="col-span-2">
           <Field label="Nghề nghiệp" required>
-            <Select
-              value={formData.occupation}
-              onValueChange={(value) =>
-                setFormData({ ...formData, occupation: value })
-              }
-            >
-              <SelectTrigger className="h-8 text-xs bg-white">
-                <SelectValue placeholder="Chọn nghề nghiệp" />
-              </SelectTrigger>
-              <SelectContent>  
-                <SelectItem value="00000">Không nghề nghiệp</SelectItem>
-                <SelectItem value="NVVP">Nhân viên văn phòng</SelectItem>
-                <SelectItem value="HS">Học sinh</SelectItem>
-                <SelectItem value="SV">Sinh viên</SelectItem>
-              </SelectContent>
-            </Select>
+            <OccupationLookup
+              initialId={formData.occupation}
+              onSelect={(occupation) => {
+                setFormData({ ...formData, occupation: occupation?.ma || "" })
+              }}
+              showHeader={true}
+              showBorders={true}
+            />
           </Field>
           </div>
 {/* Dân tộc */}
@@ -216,7 +209,7 @@ export function TiepNhanBenhNhan() {
           <Field label="Dân tộc" required>
             <Select
               value={formData.ethnicity}
-              onValueChange={(value) =>
+              onValueChange={(value: string) =>
                 setFormData({ ...formData, ethnicity: value })
               }
             >
@@ -243,7 +236,7 @@ export function TiepNhanBenhNhan() {
            <Field label="Quan hệ với NB">
             <Select
               value={formData.relationship}
-              onValueChange={(value) =>
+              onValueChange={(value: string) =>
                 setFormData({ ...formData, relationship: value })
               }
             >

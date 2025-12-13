@@ -447,6 +447,11 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
   }
 
   const renderPopupContent = () => {
+    // Calculate height for exactly 5 items (each item ~40px + padding)
+    const itemHeight = 40
+    const maxVisibleItems = 5
+    const calculatedMaxHeight = itemHeight * maxVisibleItems
+    
     return (
       <div
         ref={popupRef}
@@ -457,7 +462,7 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
         style={popupStyle}
       >
         {renderHeader()}
-        <div className="overflow-y-auto" style={{ maxHeight: popupMaxHeight }}>
+        <div className="overflow-y-auto" style={{ maxHeight: `${calculatedMaxHeight}px` }}>
           {loading && (
             <div className="flex items-center justify-center py-4">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
