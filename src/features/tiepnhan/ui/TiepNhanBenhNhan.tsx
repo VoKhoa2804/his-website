@@ -52,17 +52,8 @@ export function TiepNhanBenhNhan() {
 
       {/* BODY */}
       <CardContent className="p-4 space-y-6">
-        <div className="grid grid-cols-6 gap-3">
-          {/* Số điện thoại */}
-          <Field label="Số điện thoại">
-            <Input
-              value={formData.phoneNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, phoneNumber: e.target.value })
-              }
-              placeholder="Nhập số điện thoại"
-            />
-          </Field>
+        <div className="grid grid-cols-4 gap-3">
+         
 
           {/* Họ và tên */}
           <div className="col-span-2">
@@ -110,24 +101,7 @@ export function TiepNhanBenhNhan() {
             />
           </Field>
 
-          {/* Dân tộc */}
-          <Field label="Quốc tịch" required>
-            <Select
-              value={formData.ethnicity}
-              onValueChange={(value) =>
-                setFormData({ ...formData, ethnicity: value })
-              }
-            >
-              <SelectTrigger className="h-8 text-xs bg-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Kinh">Kinh</SelectItem>
-                <SelectItem value="Tày">Tày</SelectItem>
-                <SelectItem value="Hoa">Hoa</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
+          
           {/* Địa chỉ thường trú */}
           <div className="col-span-2">
             <Field label="Số nhà / Thôn / Xóm">
@@ -142,8 +116,8 @@ export function TiepNhanBenhNhan() {
             </Field>
           </div>
 
-          <div className="col-span-3">
-            <Field label="Tạm trú - Phường/Xã, Quận/Huyện, Tỉnh/TP">
+          <div className="col-span-2">
+            <Field label="Phường/Xã, Tỉnh/TP">
               <Input
                 value={formData.tempWard}
                 onChange={(e) =>
@@ -153,27 +127,18 @@ export function TiepNhanBenhNhan() {
               />
             </Field>
           </div>
-          {/* Nghề nghiệp */}
-          <Field label="Nghề nghiệp" required>
-            <Select
-              value={formData.occupation}
-              onValueChange={(value) =>
-                setFormData({ ...formData, occupation: value })
+          
+
+ {/* Số điện thoại */}
+          <Field label="Số điện thoại">
+            <Input
+              value={formData.phoneNumber}
+              onChange={(e) =>
+                setFormData({ ...formData, phoneNumber: e.target.value })
               }
-            >
-              <SelectTrigger className="h-8 text-xs bg-white">
-                <SelectValue placeholder="Chọn nghề nghiệp" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="00000">Không nghề nghiệp</SelectItem>
-                <SelectItem value="NVVP">Nhân viên văn phòng</SelectItem>
-                <SelectItem value="HS">Học sinh</SelectItem>
-                <SelectItem value="SV">Sinh viên</SelectItem>
-              </SelectContent>
-            </Select>
+              placeholder="Nhập số điện thoại"
+            />
           </Field>
-
-
 
           {/* Giấy tờ tùy thân */}
           <Field label="CCCD/Hộ chiếu" required>
@@ -195,7 +160,7 @@ export function TiepNhanBenhNhan() {
               className="h-8 text-xs"
             />
           </Field>
-          <div className="col-span-3">
+          
             <Field label="Nơi cấp">
               <Input
                 value={formData.issuePlace}
@@ -206,8 +171,46 @@ export function TiepNhanBenhNhan() {
                 placeholder="VD: TP.HCM"
               />
             </Field>
+          
+          {/* Nghề nghiệp */}
+          <div className="col-span-2">
+          <Field label="Nghề nghiệp" required>
+            <Select
+              value={formData.occupation}
+              onValueChange={(value) =>
+                setFormData({ ...formData, occupation: value })
+              }
+            >
+              <SelectTrigger className="h-8 text-xs bg-white">
+                <SelectValue placeholder="Chọn nghề nghiệp" />
+              </SelectTrigger>
+              <SelectContent>  
+                <SelectItem value="00000">Không nghề nghiệp</SelectItem>
+                <SelectItem value="NVVP">Nhân viên văn phòng</SelectItem>
+                <SelectItem value="HS">Học sinh</SelectItem>
+                <SelectItem value="SV">Sinh viên</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
           </div>
-
+{/* Dân tộc */}
+          <Field label="Quốc tịch" required>
+            <Select
+              value={formData.ethnicity}
+              onValueChange={(value) =>
+                setFormData({ ...formData, ethnicity: value })
+              }
+            >
+              <SelectTrigger className="h-8 text-xs bg-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Kinh">Kinh</SelectItem>
+                <SelectItem value="Tày">Tày</SelectItem>
+                <SelectItem value="Hoa">Hoa</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
 
           {/* Dân tộc */}
           <Field label="Dân tộc" required>

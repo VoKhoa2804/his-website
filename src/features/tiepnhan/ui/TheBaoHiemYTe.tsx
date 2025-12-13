@@ -45,9 +45,22 @@ export function TheBaoHiemYTe() {
         {/* 1. Thông tin thẻ BHYT */}
         <SectionTitle label="Thông tin thẻ BHYT" icon={ShieldCheck} />
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-4 gap-3">
           {/* Mã thẻ BHYT */}
-          <Field label="Mã thẻ BHYT" required>
+          <div className="col-span-2">
+            <Field label="Mã thẻ BHYT" required>
+              <Input
+                value={formData.insuranceNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, insuranceNumber: e.target.value })
+                }
+                className="h-8 text-xs"
+                placeholder="Nhập mã thẻ BHYT"
+              />
+            </Field>
+          </div>
+          {/* Mức hưởng */}
+          <Field label="Mức hưởng" required>
             <Input
               value={formData.insuranceNumber}
               onChange={(e) =>
@@ -57,56 +70,137 @@ export function TheBaoHiemYTe() {
               placeholder="Nhập mã thẻ BHYT"
             />
           </Field>
-
-          {/* Mức hưởng */}
-          <Field label="Mức hưởng" required>
-            <Select
-              value={formData.benefitLevel}
-              onValueChange={(value) =>
-                setFormData({ ...formData, benefitLevel: value })
+          <Field label="Mã KV" required>
+            <Input
+              value={formData.insuranceNumber}
+              onChange={(e) =>
+                setFormData({ ...formData, insuranceNumber: e.target.value })
               }
-            >
-              <SelectTrigger className="h-8 text-xs bg-white">
-                <SelectValue placeholder="Chọn mức hưởng" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="100">100%</SelectItem>
-                <SelectItem value="95">95%</SelectItem>
-                <SelectItem value="80">80%</SelectItem>
-              </SelectContent>
-            </Select>
+              className="h-8 text-xs"
+              placeholder="Nhập mã thẻ BHYT"
+            />
           </Field>
-
+          <div className="col-span-4">
+            <Field label="Địa chỉ thẻ" required>
+              <Input
+                value={formData.insuranceNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, insuranceNumber: e.target.value })
+                }
+                className="h-8 text-xs"
+                placeholder="Nhập mã thẻ BHYT"
+              />
+            </Field>
+          </div>
           {/* Bảo hiểm từ ngày */}
-          <Field label="Bảo hiểm từ ngày">
-            <Input
-              type="date"
-              value={formData.insuranceFrom}
-              onChange={(e) =>
-                setFormData({ ...formData, insuranceFrom: e.target.value })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-
+          <div className="col-span-2">
+            <Field label="Bảo hiểm từ ngày">
+              <Input
+                type="date"
+                value={formData.insuranceFrom}
+                onChange={(e) =>
+                  setFormData({ ...formData, insuranceFrom: e.target.value })
+                }
+                className="h-8 text-xs"
+              />
+            </Field>
+          </div>
           {/* Bảo hiểm đến ngày */}
-          <Field label="Bảo hiểm đến ngày">
-            <Input
-              type="date"
-              value={formData.insuranceTo}
-              onChange={(e) =>
-                setFormData({ ...formData, insuranceTo: e.target.value })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
+          <div className="col-span-2">
+            <Field label="Bảo hiểm đến ngày">
+              <Input
+                type="date"
+                value={formData.insuranceTo}
+                onChange={(e) =>
+                  setFormData({ ...formData, insuranceTo: e.target.value })
+                }
+                className="h-8 text-xs"
+              />
+            </Field>
+          </div>
+          {/* Bảo hiểm từ ngày */}
+          <div className="col-span-2">
+            <Field label="Ngày 5 năm liên tục">
+              <Input
+                type="date"
+                value={formData.insuranceFrom}
+                onChange={(e) =>
+                  setFormData({ ...formData, insuranceFrom: e.target.value })
+                }
+                className="h-8 text-xs"
+              />
+            </Field>
+          </div>
+          {/* Bảo hiểm đến ngày */}
+          <div className="col-span-2">
+            <Field label="Ngày miễn CCT  trong năm">
+              <Input
+                type="date"
+                value={formData.insuranceTo}
+                onChange={(e) =>
+                  setFormData({ ...formData, insuranceTo: e.target.value })
+                }
+                className="h-8 text-xs"
+              />
+            </Field>
+          </div>
+          <div className="col-span-4">
+            <Field label="Nơi đăng ký KCB ban đầu" required>
+              <Input
+                value={formData.insuranceNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, insuranceNumber: e.target.value })
+                }
+                className="h-8 text-xs"
+                placeholder="Nhập mã thẻ BHYT"
+              />
+            </Field>
+          </div>
         </div>
 
         {/* 2. Nơi đăng ký KCB & chuyển tuyến */}
         <SectionTitle
-          label="Nơi đăng ký KCB ban đầu & chuyển tuyến"
+          label="Nơi chuyển tuyến"
           icon={Hospital}
         />
+        <div className="col-span-4">
+          <Field label="Nơi chuyển tuyến (nếu có)" required>
+            <Input
+              value={formData.insuranceNumber}
+              onChange={(e) =>
+                setFormData({ ...formData, insuranceNumber: e.target.value })
+              }
+              className="h-8 text-xs"
+              placeholder="Nhập mã thẻ BHYT"
+            />
+          </Field>
+        </div>
+<div className="col-span-2">
+          <Field label="Nơi chuyển tuyến (nếu có)" required>
+            <Input
+              value={formData.insuranceNumber}
+              onChange={(e) =>
+                setFormData({ ...formData, insuranceNumber: e.target.value })
+              }
+              className="h-8 text-xs"
+              placeholder="Nhập mã thẻ BHYT"
+            />
+          </Field>
+        </div>
+        <div className="col-span-2">
+          <Field label="Nơi chuyển tuyến (nếu có)" required>
+            <Input
+              value={formData.insuranceNumber}
+              onChange={(e) =>
+                setFormData({ ...formData, insuranceNumber: e.target.value })
+              }
+              className="h-8 text-xs"
+              placeholder="Nhập mã thẻ BHYT"
+            />
+          </Field>
+        </div>
+
+
 
         <div className="grid grid-cols-2 gap-3">
           {/* Nơi ĐK KCB ban đầu */}
@@ -132,7 +226,18 @@ export function TheBaoHiemYTe() {
               placeholder="VD: BV tuyến dưới"
             />
           </Field>
-
+          <div className="col-span-2">
+            <Field label="Mã ICD chẩn đoán">
+              <Input
+                value={formData.icdDiagnosis}
+                onChange={(e) =>
+                  setFormData({ ...formData, icdDiagnosis: e.target.value })
+                }
+                className="h-8 text-xs"
+                placeholder="VD: J18.9"
+              />
+            </Field>
+          </div>
           {/* Số giấy chuyển tuyến */}
           <Field label="Số giấy chuyển tuyến">
             <Input
