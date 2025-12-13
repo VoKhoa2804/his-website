@@ -1,29 +1,14 @@
-import { useState } from "react";
 import { ShieldCheck, Hospital, Stethoscope, CalendarClock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { SectionTitle } from "@/shared/ui/sectiontitle";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Label } from "@/shared/ui/label";
+import { useTiepNhanForm } from "../hooks/useTiepNhanForm";
 
 export function TheBaoHiemYTe() {
-  const [formData, setFormData] = useState({
-    insuranceNumber: "",
-    benefitLevel: "",
-    insuranceFrom: "",
-    insuranceTo: "",
-    registrationPlace: "",
-    referralPlace: "",
-    transferNumber: "",
-    icdDiagnosis: "",
-    diagnosisText: "",
-    poorHousehold: false,
-    poorHouseholdNumber: "",
-    hasAppointment: false,
-    appointmentDate: "",
-    appointmentTime: "",
-  });
+  const { formData, updateTheBaoHiem } = useTiepNhanForm()
+  const baoHiemData = formData.theBaoHiem
 
   return (
     <Card className="border border-gray-300 shadow-sm h-full">
@@ -50,9 +35,9 @@ export function TheBaoHiemYTe() {
           <div className="col-span-2">
             <Field label="Mã thẻ BHYT" required>
               <Input
-                value={formData.insuranceNumber}
+                value={baoHiemData.insuranceNumber}
                 onChange={(e) =>
-                  setFormData({ ...formData, insuranceNumber: e.target.value })
+                  updateTheBaoHiem({ insuranceNumber: e.target.value })
                 }
                 className="h-8 text-xs"
                 placeholder="Nhập mã thẻ BHYT"
@@ -62,33 +47,33 @@ export function TheBaoHiemYTe() {
           {/* Mức hưởng */}
           <Field label="Mức hưởng" required>
             <Input
-              value={formData.insuranceNumber}
+              value={baoHiemData.benefitLevel}
               onChange={(e) =>
-                setFormData({ ...formData, insuranceNumber: e.target.value })
+                updateTheBaoHiem({ benefitLevel: e.target.value })
               }
               className="h-8 text-xs"
-              placeholder="Nhập mã thẻ BHYT"
+              placeholder="Nhập mức hưởng"
             />
           </Field>
           <Field label="Mã KV" required>
             <Input
-              value={formData.insuranceNumber}
+              value={baoHiemData.maKV}
               onChange={(e) =>
-                setFormData({ ...formData, insuranceNumber: e.target.value })
+                updateTheBaoHiem({ maKV: e.target.value })
               }
               className="h-8 text-xs"
-              placeholder="Nhập mã thẻ BHYT"
+              placeholder="Nhập mã KV"
             />
           </Field>
           <div className="col-span-4">
             <Field label="Địa chỉ thẻ" required>
               <Input
-                value={formData.insuranceNumber}
+                value={baoHiemData.addressOnCard}
                 onChange={(e) =>
-                  setFormData({ ...formData, insuranceNumber: e.target.value })
+                  updateTheBaoHiem({ addressOnCard: e.target.value })
                 }
                 className="h-8 text-xs"
-                placeholder="Nhập mã thẻ BHYT"
+                placeholder="Nhập địa chỉ thẻ"
               />
             </Field>
           </div>
@@ -97,9 +82,9 @@ export function TheBaoHiemYTe() {
             <Field label="Bảo hiểm từ ngày">
               <Input
                 type="date"
-                value={formData.insuranceFrom}
+                value={baoHiemData.insuranceFrom}
                 onChange={(e) =>
-                  setFormData({ ...formData, insuranceFrom: e.target.value })
+                  updateTheBaoHiem({ insuranceFrom: e.target.value })
                 }
                 className="h-8 text-xs"
               />
@@ -110,35 +95,35 @@ export function TheBaoHiemYTe() {
             <Field label="Bảo hiểm đến ngày">
               <Input
                 type="date"
-                value={formData.insuranceTo}
+                value={baoHiemData.insuranceTo}
                 onChange={(e) =>
-                  setFormData({ ...formData, insuranceTo: e.target.value })
+                  updateTheBaoHiem({ insuranceTo: e.target.value })
                 }
                 className="h-8 text-xs"
               />
             </Field>
           </div>
-          {/* Bảo hiểm từ ngày */}
+          {/* Ngày 5 năm liên tục */}
           <div className="col-span-2">
             <Field label="Ngày 5 năm liên tục">
               <Input
                 type="date"
-                value={formData.insuranceFrom}
+                value={baoHiemData.ngayDu5Nam}
                 onChange={(e) =>
-                  setFormData({ ...formData, insuranceFrom: e.target.value })
+                  updateTheBaoHiem({ ngayDu5Nam: e.target.value })
                 }
                 className="h-8 text-xs"
               />
             </Field>
           </div>
-          {/* Bảo hiểm đến ngày */}
+          {/* Ngày miễn CCT */}
           <div className="col-span-2">
             <Field label="Ngày miễn CCT  trong năm">
               <Input
                 type="date"
-                value={formData.insuranceTo}
+                value={baoHiemData.ngayMienCCT}
                 onChange={(e) =>
-                  setFormData({ ...formData, insuranceTo: e.target.value })
+                  updateTheBaoHiem({ ngayMienCCT: e.target.value })
                 }
                 className="h-8 text-xs"
               />
@@ -147,12 +132,12 @@ export function TheBaoHiemYTe() {
           <div className="col-span-4">
             <Field label="Nơi đăng ký KCB ban đầu" required>
               <Input
-                value={formData.insuranceNumber}
+                value={baoHiemData.registrationPlace}
                 onChange={(e) =>
-                  setFormData({ ...formData, insuranceNumber: e.target.value })
+                  updateTheBaoHiem({ registrationPlace: e.target.value })
                 }
                 className="h-8 text-xs"
-                placeholder="Nhập mã thẻ BHYT"
+                placeholder="Nhập nơi đăng ký KCB ban đầu"
               />
             </Field>
           </div>
@@ -164,91 +149,53 @@ export function TheBaoHiemYTe() {
           icon={Hospital}
         />
         <div className="col-span-4">
-          <Field label="Nơi chuyển tuyến (nếu có)" required>
+          <Field label="Tên nơi chuyển tuyến (nếu có)">
             <Input
-              value={formData.insuranceNumber}
+              value={baoHiemData.tenNoiChuyenTuyen}
               onChange={(e) =>
-                setFormData({ ...formData, insuranceNumber: e.target.value })
+                updateTheBaoHiem({ tenNoiChuyenTuyen: e.target.value })
               }
               className="h-8 text-xs"
-              placeholder="Nhập mã thẻ BHYT"
+              placeholder="Nhập tên nơi chuyển tuyến"
             />
           </Field>
         </div>
-<div className="col-span-2">
-          <Field label="Nơi chuyển tuyến (nếu có)" required>
-            <Input
-              value={formData.insuranceNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, insuranceNumber: e.target.value })
-              }
-              className="h-8 text-xs"
-              placeholder="Nhập mã thẻ BHYT"
-            />
-          </Field>
-        </div>
-        <div className="col-span-2">
-          <Field label="Nơi chuyển tuyến (nếu có)" required>
-            <Input
-              value={formData.insuranceNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, insuranceNumber: e.target.value })
-              }
-              className="h-8 text-xs"
-              placeholder="Nhập mã thẻ BHYT"
-            />
-          </Field>
-        </div>
-
-
-
         <div className="grid grid-cols-2 gap-3">
-          {/* Nơi ĐK KCB ban đầu */}
-          <Field label="Nơi đăng ký KCB ban đầu" required>
+          {/* Mã nơi chuyển tuyến */}
+          <Field label="Mã nơi chuyển tuyến">
             <Input
-              value={formData.registrationPlace}
+              value={baoHiemData.referralPlace}
               onChange={(e) =>
-                setFormData({ ...formData, registrationPlace: e.target.value })
+                updateTheBaoHiem({ referralPlace: e.target.value })
               }
               className="h-8 text-xs"
-              placeholder="VD: BV Bình Dân"
+              placeholder="Nhập mã nơi chuyển tuyến"
             />
           </Field>
 
-          {/* Nơi chuyển tuyến */}
-          <Field label="Nơi chuyển tuyến (nếu có)">
+          {/* Số giấy chuyển tuyến */}
+          <Field label="Số giấy chuyển tuyến">
             <Input
-              value={formData.referralPlace}
+              value={baoHiemData.transferNumber}
               onChange={(e) =>
-                setFormData({ ...formData, referralPlace: e.target.value })
+                updateTheBaoHiem({ transferNumber: e.target.value })
               }
               className="h-8 text-xs"
-              placeholder="VD: BV tuyến dưới"
+              placeholder="Nhập số giấy chuyển tuyến"
             />
           </Field>
           <div className="col-span-2">
             <Field label="Mã ICD chẩn đoán">
               <Input
-                value={formData.icdDiagnosis}
+                value={baoHiemData.icdDiagnosis}
                 onChange={(e) =>
-                  setFormData({ ...formData, icdDiagnosis: e.target.value })
+                  updateTheBaoHiem({ icdDiagnosis: e.target.value })
                 }
                 className="h-8 text-xs"
                 placeholder="VD: J18.9"
               />
             </Field>
           </div>
-          {/* Số giấy chuyển tuyến */}
-          <Field label="Số giấy chuyển tuyến">
-            <Input
-              value={formData.transferNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, transferNumber: e.target.value })
-              }
-              className="h-8 text-xs"
-              placeholder="Nhập số giấy chuyển tuyến"
-            />
-          </Field>
         </div>
 
         {/* 3. Chẩn đoán */}
@@ -257,9 +204,9 @@ export function TheBaoHiemYTe() {
         <div className="grid grid-cols-2 gap-3">
           <Field label="Mã ICD chẩn đoán">
             <Input
-              value={formData.icdDiagnosis}
+              value={baoHiemData.icdDiagnosis}
               onChange={(e) =>
-                setFormData({ ...formData, icdDiagnosis: e.target.value })
+                updateTheBaoHiem({ icdDiagnosis: e.target.value })
               }
               className="h-8 text-xs"
               placeholder="VD: J18.9"
@@ -268,9 +215,9 @@ export function TheBaoHiemYTe() {
 
           <Field label="Chẩn đoán (text)">
             <Input
-              value={formData.diagnosisText}
+              value={baoHiemData.diagnosisText}
               onChange={(e) =>
-                setFormData({ ...formData, diagnosisText: e.target.value })
+                updateTheBaoHiem({ diagnosisText: e.target.value })
               }
               className="h-8 text-xs"
               placeholder="Nhập chẩn đoán"
@@ -289,10 +236,9 @@ export function TheBaoHiemYTe() {
           <div className="flex items-center gap-2">
             <Checkbox
               id="poorHousehold"
-              checked={formData.poorHousehold}
+              checked={baoHiemData.poorHousehold}
               onCheckedChange={(checked) =>
-                setFormData({
-                  ...formData,
+                updateTheBaoHiem({
                   poorHousehold: Boolean(checked),
                 })
               }
@@ -303,10 +249,9 @@ export function TheBaoHiemYTe() {
 
             <div className="flex-1 ml-3">
               <Input
-                value={formData.poorHouseholdNumber}
+                value={baoHiemData.poorHouseholdNumber}
                 onChange={(e) =>
-                  setFormData({
-                    ...formData,
+                  updateTheBaoHiem({
                     poorHouseholdNumber: e.target.value,
                   })
                 }
@@ -321,10 +266,9 @@ export function TheBaoHiemYTe() {
             <div className="flex items-center gap-2">
               <Checkbox
                 id="hasAppointment"
-                checked={formData.hasAppointment}
+                checked={baoHiemData.hasAppointment}
                 onCheckedChange={(checked) =>
-                  setFormData({
-                    ...formData,
+                  updateTheBaoHiem({
                     hasAppointment: Boolean(checked),
                   })
                 }
@@ -337,15 +281,14 @@ export function TheBaoHiemYTe() {
               </Label>
             </div>
 
-            {formData.hasAppointment && (
+            {baoHiemData.hasAppointment && (
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Ngày hẹn khám">
                   <Input
                     type="date"
-                    value={formData.appointmentDate}
+                    value={baoHiemData.appointmentDate}
                     onChange={(e) =>
-                      setFormData({
-                        ...formData,
+                      updateTheBaoHiem({
                         appointmentDate: e.target.value,
                       })
                     }
@@ -356,10 +299,9 @@ export function TheBaoHiemYTe() {
                 <Field label="Giờ hẹn khám">
                   <Input
                     type="time"
-                    value={formData.appointmentTime}
+                    value={baoHiemData.appointmentTime}
                     onChange={(e) =>
-                      setFormData({
-                        ...formData,
+                      updateTheBaoHiem({
                         appointmentTime: e.target.value,
                       })
                     }

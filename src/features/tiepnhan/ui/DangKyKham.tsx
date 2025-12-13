@@ -220,7 +220,6 @@
 
 
 
-import { useState } from "react";
 import { Camera, QrCode, User } from "lucide-react";
 import {
   Card,
@@ -239,26 +238,11 @@ import {
 } from "@/shared/ui/select";
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
+import { useTiepNhanForm } from "../hooks/useTiepNhanForm";
 
 export function DangKyKham() {
-  const [formData, setFormData] = useState({
-    receptionCode: "",
-    patientCode: "",
-    emrCode: "",
-    fullName: "",
-    dateOfBirth: "",
-    age: "",
-    gender: "",
-    address: "",
-    visitReason: "",
-    visitType: "",
-    department: "",
-    doctor: "",
-    room: "",
-    patientType: "Thu phí",
-    clinic: "",
-    referrer: "",
-  });
+  const { formData, updateDangKyKham } = useTiepNhanForm()
+  const dangKyData = formData.dangKyKham
 
   return (
     <Card className="border border-gray-300 shadow-sm h-full">
@@ -297,12 +281,9 @@ export function DangKyKham() {
             <Field label="Mã tiếp đón">
               <div className="relative">
                 <Input
-                  value={formData.receptionCode}
+                  value={dangKyData.receptionCode}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      receptionCode: e.target.value,
-                    })
+                    updateDangKyKham({ receptionCode: e.target.value })
                   }
                   placeholder="Quét QR code hoặc tự nhập"
                   className="pr-10" // chừa chỗ icon
@@ -314,12 +295,9 @@ export function DangKyKham() {
             <Field label="Mã bệnh nhân *">
               <div className="flex gap-2">
                 <Input
-                  value={formData.patientCode}
+                  value={dangKyData.patientCode}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      patientCode: e.target.value,
-                    })
+                    updateDangKyKham({ patientCode: e.target.value })
                   }
                   placeholder="Nhập mã BN"
                 />
@@ -328,9 +306,9 @@ export function DangKyKham() {
 
             <Field label="Mã khám bệnh">
               <Input
-                value={formData.emrCode}
+                value={dangKyData.emrCode}
                 onChange={(e) =>
-                  setFormData({ ...formData, emrCode: e.target.value })
+                  updateDangKyKham({ emrCode: e.target.value })
                 }
                 placeholder="Mã đợt khám bệnh"
               />
@@ -340,12 +318,9 @@ export function DangKyKham() {
             <div className="col-span-1 md:col-span-2">
               <Field label="Lý do đến khám">
                 <Input
-                  value={formData.visitReason}
+                  value={dangKyData.visitReason}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      visitReason: e.target.value,
-                    })
+                    updateDangKyKham({ visitReason: e.target.value })
                   }
                   placeholder="VD: Đau bụng, tái khám..."
                 />
@@ -354,9 +329,9 @@ export function DangKyKham() {
 
             <Field label="Người giới thiệu">
               <Select
-                value={formData.referrer}
+                value={dangKyData.referrer}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, referrer: value })
+                  updateDangKyKham({ referrer: value })
                 }
               >
                 <SelectTrigger className="h-8 text-xs bg-white">
@@ -374,9 +349,9 @@ export function DangKyKham() {
 
             <Field label="Phòng khám">
               <Select
-                value={formData.visitType}
+                value={dangKyData.visitType}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, visitType: value })
+                  updateDangKyKham({ visitType: value })
                 }
               >
                 <SelectTrigger className="h-8 text-xs bg-white">
@@ -390,11 +365,11 @@ export function DangKyKham() {
               </Select>
             </Field>
 
-            <Field label="Đối tượng">
+            <Field label="Đối tương">
               <Select
-                value={formData.department}
+                value={dangKyData.department}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, department: value })
+                  updateDangKyKham({ department: value })
                 }
               >
                 <SelectTrigger className="h-8 text-xs bg-white">
@@ -414,9 +389,9 @@ export function DangKyKham() {
 
             <Field label="Loại ưu tiên">
               <Select
-                value={formData.room}
+                value={dangKyData.room}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, room: value })
+                  updateDangKyKham({ room: value })
                 }
               >
                 <SelectTrigger className="h-8 text-xs bg-white">

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Phone } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
@@ -6,35 +5,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SectionTitle } from "@/shared/ui/sectiontitle";
 import { Label } from "@/shared/ui/label";
 import { OccupationLookup } from "./OccupationLookup";
+import { useTiepNhanForm } from "../hooks/useTiepNhanForm";
 
 export function TiepNhanBenhNhan() {
-  const [formData, setFormData] = useState({
-    phoneNumber: "",
-    fullName: "",
-    dateOfBirth: "",
-    birthTime: "00:00",
-    age: "",
-    gender: "",
-    occupation: "",
-    ethnicity: "Kinh",
-    nationality: "Việt Nam",
-    houseNumber: "",
-    ward: "",
-    tempHouseNumber: "",
-    tempWard: "",
-    idType: "CCCD",
-    idNumber: "",
-    issueDate: "",
-    issuePlace: "",
-    contactPhoneNumber: "",
-    contactFullName: "",
-    relationship: "",
-    guardian: "",
-    workplace: "",
-    schoolName: "",
-    className: "",
-    studentCode: "",
-  });
+  const { formData, updateTiepNhanBenhNhan } = useTiepNhanForm()
+  const benhNhanData = formData.tiepNhanBenhNhan
 
   return (
     <Card className="border border-gray-300 shadow-sm">
@@ -60,9 +35,9 @@ export function TiepNhanBenhNhan() {
           <div className="col-span-2">
             <Field label="Họ và tên" required>
               <Input
-                value={formData.fullName}
+                value={benhNhanData.fullName}
                 onChange={(e) =>
-                  setFormData({ ...formData, fullName: e.target.value })
+                  updateTiepNhanBenhNhan({ fullName: e.target.value })
                 }
                 placeholder="Nhập họ và tên"
               />
@@ -72,9 +47,9 @@ export function TiepNhanBenhNhan() {
 
           <Field label="Giới tính" required>
             <Select
-              value={formData.gender}
+              value={benhNhanData.gender}
               onValueChange={(value: string) =>
-                setFormData({ ...formData, gender: value })
+                updateTiepNhanBenhNhan({ gender: value })
               }
             >
               <SelectTrigger className="h-8 text-xs bg-white">
@@ -94,9 +69,9 @@ export function TiepNhanBenhNhan() {
           <Field label="Ngày sinh" required>
             <Input
               type="date"
-              value={formData.dateOfBirth}
+              value={benhNhanData.dateOfBirth}
               onChange={(e) =>
-                setFormData({ ...formData, dateOfBirth: e.target.value })
+                updateTiepNhanBenhNhan({ dateOfBirth: e.target.value })
               }
               className="h-8 text-xs"
             />
@@ -107,9 +82,9 @@ export function TiepNhanBenhNhan() {
           <div className="col-span-2">
             <Field label="Số nhà / Thôn / Xóm">
               <Input
-                value={formData.houseNumber}
+                value={benhNhanData.houseNumber}
                 onChange={(e) =>
-                  setFormData({ ...formData, houseNumber: e.target.value })
+                  updateTiepNhanBenhNhan({ houseNumber: e.target.value })
                 }
                 className="h-8 text-xs"
                 placeholder="VD: 12/3 KP3"
@@ -120,9 +95,9 @@ export function TiepNhanBenhNhan() {
           <div className="col-span-2">
             <Field label="Phường/Xã, Tỉnh/TP">
               <Input
-                value={formData.tempWard}
+                value={benhNhanData.ward}
                 onChange={(e) =>
-                  setFormData({ ...formData, tempWard: e.target.value })
+                  updateTiepNhanBenhNhan({ ward: e.target.value })
                 }
                 className="h-8 text-xs"
               />
@@ -133,9 +108,9 @@ export function TiepNhanBenhNhan() {
  {/* Số điện thoại */}
           <Field label="Số điện thoại">
             <Input
-              value={formData.phoneNumber}
+              value={benhNhanData.phoneNumber}
               onChange={(e) =>
-                setFormData({ ...formData, phoneNumber: e.target.value })
+                updateTiepNhanBenhNhan({ phoneNumber: e.target.value })
               }
               placeholder="Nhập số điện thoại"
             />
@@ -144,9 +119,9 @@ export function TiepNhanBenhNhan() {
           {/* Giấy tờ tùy thân */}
           <Field label="CCCD/Hộ chiếu" required>
             <Input
-              value={formData.idNumber}
+              value={benhNhanData.idNumber}
               onChange={(e) =>
-                setFormData({ ...formData, idNumber: e.target.value })
+                updateTiepNhanBenhNhan({ idNumber: e.target.value })
               }
             />
           </Field>
@@ -154,9 +129,9 @@ export function TiepNhanBenhNhan() {
           <Field label="Ngày cấp">
             <Input
               type="date"
-              value={formData.issueDate}
+              value={benhNhanData.issueDate}
               onChange={(e) =>
-                setFormData({ ...formData, issueDate: e.target.value })
+                updateTiepNhanBenhNhan({ issueDate: e.target.value })
               }
               className="h-8 text-xs"
             />
@@ -164,9 +139,9 @@ export function TiepNhanBenhNhan() {
           
             <Field label="Nơi cấp">
               <Input
-                value={formData.issuePlace}
+                value={benhNhanData.issuePlace}
                 onChange={(e) =>
-                  setFormData({ ...formData, issuePlace: e.target.value })
+                  updateTiepNhanBenhNhan({ issuePlace: e.target.value })
                 }
                 className="h-8 text-xs"
                 placeholder="VD: TP.HCM"
@@ -177,9 +152,9 @@ export function TiepNhanBenhNhan() {
           <div className="col-span-2">
           <Field label="Nghề nghiệp" required>
             <OccupationLookup
-              initialId={formData.occupation}
+              initialId={benhNhanData.occupation}
               onSelect={(occupation) => {
-                setFormData({ ...formData, occupation: occupation?.ma || "" })
+                updateTiepNhanBenhNhan({ occupation: occupation?.ma || "" })
               }}
               showHeader={true}
               showBorders={true}
@@ -189,9 +164,9 @@ export function TiepNhanBenhNhan() {
 {/* Dân tộc */}
           <Field label="Quốc tịch" required>
             <Select
-              value={formData.ethnicity}
+              value={benhNhanData.nationality}
               onValueChange={(value) =>
-                setFormData({ ...formData, ethnicity: value })
+                updateTiepNhanBenhNhan({ nationality: value })
               }
             >
               <SelectTrigger className="h-8 text-xs bg-white">
@@ -208,9 +183,9 @@ export function TiepNhanBenhNhan() {
           {/* Dân tộc */}
           <Field label="Dân tộc" required>
             <Select
-              value={formData.ethnicity}
+              value={benhNhanData.ethnicity}
               onValueChange={(value: string) =>
-                setFormData({ ...formData, ethnicity: value })
+                updateTiepNhanBenhNhan({ ethnicity: value })
               }
             >
               <SelectTrigger className="h-8 text-xs bg-white">
@@ -235,9 +210,9 @@ export function TiepNhanBenhNhan() {
         <div className="grid grid-cols-6 gap-3">
            <Field label="Quan hệ với NB">
             <Select
-              value={formData.relationship}
+              value={benhNhanData.relationship}
               onValueChange={(value: string) =>
-                setFormData({ ...formData, relationship: value })
+                updateTiepNhanBenhNhan({ relationship: value })
               }
             >
               <SelectTrigger className="h-8 text-xs bg-white">
@@ -254,10 +229,9 @@ export function TiepNhanBenhNhan() {
 
           <Field label="Tên người liên hệ">
             <Input
-              value={formData.contactFullName}
+              value={benhNhanData.contactFullName}
               onChange={(e) =>
-                setFormData({
-                  ...formData,
+                updateTiepNhanBenhNhan({
                   contactFullName: e.target.value,
                 })
               }
@@ -267,10 +241,9 @@ export function TiepNhanBenhNhan() {
 
           <Field label="SĐT người liên hệ">
             <Input
-              value={formData.contactPhoneNumber}
+              value={benhNhanData.contactPhoneNumber}
               onChange={(e) =>
-                setFormData({
-                  ...formData,
+                updateTiepNhanBenhNhan({
                   contactPhoneNumber: e.target.value,
                 })
               }
