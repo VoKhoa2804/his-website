@@ -31,6 +31,10 @@ export function TheBaoHiemYTe({ collapsed = false }: TheBaoHiemYTeProps) {
             <ShieldCheck className="w-4 h-4" />
             THÔNG TIN BẢO HIỂM Y TẾ
           </CardTitle>
+          {/* <CardTitle className="text-xs font-bold tracking-wide flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-white" />
+            THÔNG TIN BẢO HIỂM Y TẾ
+          </CardTitle> */}
           <CardDescription className="text-[11px] text-white/80">
             Kiểm tra kỹ thông tin BHYT trước khi lưu
           </CardDescription>
