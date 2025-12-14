@@ -1,4 +1,4 @@
-import { ShieldCheck, Hospital, Stethoscope, CalendarClock } from "lucide-react";
+import { ShieldCheck, Hospital, Stethoscope, CalendarClock, User } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { SectionTitle } from "@/shared/ui/sectiontitle";
@@ -15,10 +15,14 @@ export function TheBaoHiemYTe() {
       {/* HEADER */}
       <CardHeader className="bg-emerald-700 text-white px-4 py-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xs font-bold tracking-wide flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-white" />
+          <CardTitle className="text-sm sm:text-xs font-bold tracking-wide flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-white" />
             THÔNG TIN BẢO HIỂM Y TẾ
           </CardTitle>
+          {/* <CardTitle className="text-xs font-bold tracking-wide flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-white" />
+            THÔNG TIN BẢO HIỂM Y TẾ
+          </CardTitle> */}
           <CardDescription className="text-[11px] text-white/80">
             Kiểm tra kỹ thông tin BHYT trước khi lưu
           </CardDescription>
@@ -27,9 +31,6 @@ export function TheBaoHiemYTe() {
 
       {/* BODY */}
       <CardContent className="p-4 space-y-6">
-        {/* 1. Thông tin thẻ BHYT */}
-        <SectionTitle label="Thông tin thẻ BHYT" icon={ShieldCheck} />
-
         <div className="grid grid-cols-4 gap-3">
           {/* Mã thẻ BHYT */}
           <div className="col-span-2">
@@ -141,6 +142,63 @@ export function TheBaoHiemYTe() {
               />
             </Field>
           </div>
+          <div className="col-span-2">
+            <Field label="Đốitượng KCB" required>
+              <Input
+                value={baoHiemData.registrationPlace}
+                onChange={(e) =>
+                  updateTheBaoHiem({ registrationPlace: e.target.value })
+                }
+                className="h-8 text-xs"
+                placeholder="Nhập nơi đăng ký KCB ban đầu"
+              />
+            </Field>
+          </div>
+          <div className="col-span-2">
+            <Field label="Loại KCB" required>
+              <Input
+                value={baoHiemData.registrationPlace}
+                onChange={(e) =>
+                  updateTheBaoHiem({ registrationPlace: e.target.value })
+                }
+                className="h-8 text-xs"
+                placeholder="Nhập nơi đăng ký KCB ban đầu"
+              />
+            </Field>
+          </div>
+          <div className="col-span-4">
+            <div className="space-y-3">
+            {/* Hộ nghèo */}
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="poorHousehold"
+                checked={baoHiemData.poorHousehold}
+                onCheckedChange={(checked) =>
+                  updateTheBaoHiem({
+                    poorHousehold: Boolean(checked),
+                  })
+                }
+              />
+              <Label htmlFor="poorHousehold" className="text-xs text-gray-700">
+                Hộ nghèo / cận nghèo
+              </Label>
+
+              <div className="flex-1 ml-3">
+                <Input
+                  value={baoHiemData.poorHouseholdNumber}
+                  onChange={(e) =>
+                    updateTheBaoHiem({
+                      poorHouseholdNumber: e.target.value,
+                    })
+                  }
+                  className="h-8 text-xs"
+                  placeholder="Số sổ hộ nghèo / cận nghèo"
+                />
+              </div>
+            </div>
+          </div>
+          </div>
+          
         </div>
 
         {/* 2. Nơi đăng ký KCB & chuyển tuyến */}
@@ -160,9 +218,13 @@ export function TheBaoHiemYTe() {
             />
           </Field>
         </div>
+
+
+
+
         <div className="grid grid-cols-2 gap-3">
           {/* Mã nơi chuyển tuyến */}
-          <Field label="Mã nơi chuyển tuyến">
+          <Field label="Số giấy chuyển tuyến">
             <Input
               value={baoHiemData.referralPlace}
               onChange={(e) =>
@@ -174,7 +236,7 @@ export function TheBaoHiemYTe() {
           </Field>
 
           {/* Số giấy chuyển tuyến */}
-          <Field label="Số giấy chuyển tuyến">
+          <Field label="Mã ICD chẩn đoán">
             <Input
               value={baoHiemData.transferNumber}
               onChange={(e) =>
@@ -185,7 +247,7 @@ export function TheBaoHiemYTe() {
             />
           </Field>
           <div className="col-span-2">
-            <Field label="Mã ICD chẩn đoán">
+            <Field label="Chẩn đoán">
               <Input
                 value={baoHiemData.icdDiagnosis}
                 onChange={(e) =>
@@ -195,121 +257,6 @@ export function TheBaoHiemYTe() {
                 placeholder="VD: J18.9"
               />
             </Field>
-          </div>
-        </div>
-
-        {/* 3. Chẩn đoán */}
-        <SectionTitle label="Chẩn đoán" icon={Stethoscope} />
-
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Mã ICD chẩn đoán">
-            <Input
-              value={baoHiemData.icdDiagnosis}
-              onChange={(e) =>
-                updateTheBaoHiem({ icdDiagnosis: e.target.value })
-              }
-              className="h-8 text-xs"
-              placeholder="VD: J18.9"
-            />
-          </Field>
-
-          <Field label="Chẩn đoán (text)">
-            <Input
-              value={baoHiemData.diagnosisText}
-              onChange={(e) =>
-                updateTheBaoHiem({ diagnosisText: e.target.value })
-              }
-              className="h-8 text-xs"
-              placeholder="Nhập chẩn đoán"
-            />
-          </Field>
-        </div>
-
-        {/* 4. Đối tượng & giấy hẹn khám */}
-        <SectionTitle
-          label="Đối tượng & giấy hẹn khám"
-          icon={CalendarClock}
-        />
-
-        <div className="space-y-3">
-          {/* Hộ nghèo */}
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="poorHousehold"
-              checked={baoHiemData.poorHousehold}
-              onCheckedChange={(checked) =>
-                updateTheBaoHiem({
-                  poorHousehold: Boolean(checked),
-                })
-              }
-            />
-            <Label htmlFor="poorHousehold" className="text-xs text-gray-700">
-              Hộ nghèo / cận nghèo
-            </Label>
-
-            <div className="flex-1 ml-3">
-              <Input
-                value={baoHiemData.poorHouseholdNumber}
-                onChange={(e) =>
-                  updateTheBaoHiem({
-                    poorHouseholdNumber: e.target.value,
-                  })
-                }
-                className="h-8 text-xs"
-                placeholder="Số sổ hộ nghèo / cận nghèo"
-              />
-            </div>
-          </div>
-
-          {/* Có giấy hẹn khám */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="hasAppointment"
-                checked={baoHiemData.hasAppointment}
-                onCheckedChange={(checked) =>
-                  updateTheBaoHiem({
-                    hasAppointment: Boolean(checked),
-                  })
-                }
-              />
-              <Label
-                htmlFor="hasAppointment"
-                className="text-xs text-gray-700"
-              >
-                Có giấy hẹn khám
-              </Label>
-            </div>
-
-            {baoHiemData.hasAppointment && (
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Ngày hẹn khám">
-                  <Input
-                    type="date"
-                    value={baoHiemData.appointmentDate}
-                    onChange={(e) =>
-                      updateTheBaoHiem({
-                        appointmentDate: e.target.value,
-                      })
-                    }
-                    className="h-8 text-xs"
-                  />
-                </Field>
-
-                <Field label="Giờ hẹn khám">
-                  <Input
-                    type="time"
-                    value={baoHiemData.appointmentTime}
-                    onChange={(e) =>
-                      updateTheBaoHiem({
-                        appointmentTime: e.target.value,
-                      })
-                    }
-                    className="h-8 text-xs"
-                  />
-                </Field>
-              </div>
-            )}
           </div>
         </div>
       </CardContent>

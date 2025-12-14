@@ -292,26 +292,40 @@ export function DangKyKham() {
               </div>
             </Field>
 
-            <Field label="Mã bệnh nhân *">
-              <div className="flex gap-2">
-                <Input
-                  value={dangKyData.patientCode}
-                  onChange={(e) =>
-                    updateDangKyKham({ patientCode: e.target.value })
-                  }
-                  placeholder="Nhập mã BN"
-                />
-              </div>
+            <Field label="Loại KCB">
+              <Select
+                value={dangKyData.visitType}
+                onValueChange={(value) =>
+                  updateDangKyKham({ visitType: value })
+                }
+              >
+                <SelectTrigger className="h-8 text-xs bg-white">
+                  <SelectValue placeholder="Chọn" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="kham-moi">Khám mới</SelectItem>
+                  <SelectItem value="tai-kham">Tái khám</SelectItem>
+                  <SelectItem value="cap-cuu">Cấp cứu</SelectItem>
+                </SelectContent>
+              </Select>
             </Field>
 
-            <Field label="Mã khám bệnh">
-              <Input
-                value={dangKyData.emrCode}
-                onChange={(e) =>
-                  updateDangKyKham({ emrCode: e.target.value })
+            <Field label="Đối tương KCB">
+              <Select
+                value={dangKyData.visitType}
+                onValueChange={(value) =>
+                  updateDangKyKham({ visitType: value })
                 }
-                placeholder="Mã đợt khám bệnh"
-              />
+              >
+                <SelectTrigger className="h-8 text-xs bg-white">
+                  <SelectValue placeholder="Chọn" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="kham-moi">Khám mới</SelectItem>
+                  <SelectItem value="tai-kham">Tái khám</SelectItem>
+                  <SelectItem value="cap-cuu">Cấp cứu</SelectItem>
+                </SelectContent>
+              </Select>
             </Field>
 
             {/* Lý do đến khám – full width mobile, 2/3 trên md */}
@@ -406,6 +420,25 @@ export function DangKyKham() {
             </Field>
           </div>
         </div>
+        {/* <div className="grid grid-cols-4 gap-3">
+          <Field label="Loại ưu tiên">
+              <Select
+                value={dangKyData.room}
+                onValueChange={(value) =>
+                  updateDangKyKham({ room: value })
+                }
+              >
+                <SelectTrigger className="h-8 text-xs bg-white">
+                  <SelectValue placeholder="Chọn buồng khám" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pk-01">PK 01</SelectItem>
+                  <SelectItem value="pk-02">PK 02</SelectItem>
+                  <SelectItem value="pk-03">PK 03</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+        </div> */}
       </CardContent>
     </Card>
   );
