@@ -6,6 +6,10 @@
 // UI Components
 export { ClinicListPage } from './ui/ClinicListPage'
 export { ClinicRegisterPage } from './ui/ClinicRegisterPage'
+export { IcdSelectDialog } from './ui/IcdSelectDialog'
+
+// Types
+export type { IcdDialogResult, IcdItem, IcdCategory } from './ui/IcdSelectDialog'
 
 // Section Components
 export { AdministrativeInfoSection } from './ui/sections/AdministrativeInfoSection'

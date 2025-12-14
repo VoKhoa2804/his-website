@@ -3,12 +3,15 @@ import { SectionTitle } from '../components/SectionTitle';
 import { InlineField } from '../components/InlineField';
 import { DiagnosisPill } from '../components/DiagnosisPill';
 import { Button } from '@/shared/ui/button';
+import { IcdSelectDialog, type IcdDialogResult } from '../IcdSelectDialog';
 
 interface DiagnosisItem {
   id: string;
   code: string;
   name: string;
 }
+
+type DialogType = 'preliminary' | 'confirmed' | null;
 
 export function DiagnosisSection() {
   const [preliminaryDiagnoses, setPreliminaryDiagnoses] = useState<DiagnosisItem[]>([]);
@@ -17,6 +20,8 @@ export function DiagnosisSection() {
     { id: '1', code: 'A09', name: 'Tiêu chảy' },
     { id: '2', code: 'J06', name: 'VĐTHN' },
   ]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [activeDialogType, setActiveDialogType] = useState<DialogType>(null);
 
   const handleRemoveDiagnosis = (
     id: string,
@@ -31,6 +36,26 @@ export function DiagnosisSection() {
     }
   };
 
+  const handleOpenDialog = (type: DialogType) => {
+    setActiveDialogType(type);
+    setDialogOpen(true);
+  };
+
+  const handleIcdConfirm = (result: IcdDialogResult) => {
+    // Use actual ICD data from the dialog
+    const newDiagnoses: DiagnosisItem[] = result.selectedRows.map((row) => ({
+      id: row.id,
+      code: row.code,
+      name: row.name,
+    }));
+
+    if (activeDialogType === 'preliminary') {
+      setPreliminaryDiagnoses((prev) => [...prev, ...newDiagnoses]);
+    } else if (activeDialogType === 'confirmed') {
+      setConfirmedDiagnoses((prev) => [...prev, ...newDiagnoses]);
+    }
+  };
+
   return (
     <div className="bg-white border border-gray-300 rounded-lg p-5 mb-5">
       <SectionTitle number="V" title="CHẨN ĐOÁN" />
@@ -40,7 +65,12 @@ export function DiagnosisSection() {
         <div className="flex items-center gap-3 mt-2">
           <span className="text-xs text-gray-700 font-medium">ICD-10:</span>
           <input className="medical-input w-24" placeholder="Mã ICD" />
-          <Button variant="outline" size="sm" className="text-xs">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="text-xs"
+            onClick={() => handleOpenDialog('preliminary')}
+          >
             + Add
           </Button>
         </div>
@@ -61,7 +91,12 @@ export function DiagnosisSection() {
         <div className="flex items-center gap-3 mt-2">
           <span className="text-xs text-gray-700 font-medium">ICD-10:</span>
           <input className="medical-input w-24" placeholder="Mã ICD" />
-          <Button variant="outline" size="sm" className="text-xs">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="text-xs"
+            onClick={() => handleOpenDialog('confirmed')}
+          >
             + Add
           </Button>
         </div>
@@ -92,6 +127,13 @@ export function DiagnosisSection() {
           ))}
         </div>
       </div>
+
+      <IcdSelectDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onConfirm={handleIcdConfirm}
+        title={activeDialogType === 'preliminary' ? 'Chẩn đoán sơ bộ' : 'Chẩn đoán xác định'}
+      />
     </div>
   );
 }
