@@ -23,6 +23,8 @@ export interface LookupFieldProps {
   onSearch?: (query: string) => Promise<LookupOption[]>
   valueLabel?: string
   onSelectOption?: (option: LookupOption) => void
+  showAllOnEmpty?: boolean
+  emptyResultLimit?: number
 }
 
 function mapToLookupAutocompleteData(options: LookupOption[]) {
@@ -49,6 +51,8 @@ export function LookupField({
   onSearch,
   valueLabel,
   onSelectOption,
+  showAllOnEmpty,
+  emptyResultLimit,
 }: LookupFieldProps) {
   const dataset = mapToLookupAutocompleteData(options)
   const isDisabled = disabled || loading
@@ -94,6 +98,8 @@ export function LookupField({
         popupAppendToBody={false}
         onSelect={(selection) => handleSelect(selection)}
         onFetchData={handleFetchData}
+        showAllOnEmpty={showAllOnEmpty}
+        emptyResultLimit={emptyResultLimit}
       />
 
       {!loading && dataset.length === 0 && !onSearch && (

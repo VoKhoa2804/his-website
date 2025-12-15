@@ -99,7 +99,8 @@ export const selectAddressSearchIndex = createSelector([selectPhuongXaData], (li
         xaId: item.PhuongXaId,
         xaName,
       }
-    }),
+    })
+    .sort((a, b) => a.label.localeCompare(b.label, "vi")),
 )
 
 export function searchAddressOptions(
@@ -107,8 +108,11 @@ export function searchAddressOptions(
   keyword: string,
   limit = 50,
 ): AddressOption[] {
-  const query = normalizeSearchText(keyword)
-  if (!query) return []
+  const trimmed = keyword?.trim() || ""
+  if (!trimmed) {
+    return index.slice(0, limit)
+  }
+  const query = normalizeSearchText(trimmed)
 
   const startsWith: AddressOption[] = []
   const contains: AddressOption[] = []

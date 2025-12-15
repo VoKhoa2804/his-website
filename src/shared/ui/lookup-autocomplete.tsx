@@ -59,6 +59,8 @@ export interface LookupAutocompleteProps {
 
   initialId?: string
   initialName?: string
+  showAllOnEmpty?: boolean
+  emptyResultLimit?: number
 }
 
 // ===== Utility Functions =====
@@ -223,6 +225,8 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
     inputClassName,
     initialId,
     initialName,
+    showAllOnEmpty = false,
+    emptyResultLimit = 50,
   } = props
 
   const [inputValue, setInputValue] = useState<string>(initialName || '')
@@ -299,16 +303,17 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
     return () => document.removeEventListener('click', handleClickOutside)
   }, [popupAppendToBody])
 
-  const doFetchData = useCallback(async (q: string) => {
+  const doFetchData = useCallback(async (q: string, limitOverride?: number) => {
     try {
       setLoading(true)
+      const maxItems = limitOverride ?? take
 
       // Priority 1: Use custom fetch function
       if (onFetchData) {
         const data = await onFetchData(q)
         const dataArray = Array.isArray(data) ? data : []
         // Apply local filtering to the fetched data
-        const filtered = localFilter(dataArray, q, take, searchFields, displayColumns)
+        const filtered = localFilter(dataArray, q, maxItems, searchFields, displayColumns)
         setItems(filtered)
         setOpen(true)
         return
@@ -316,7 +321,7 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
 
       // Priority 2: Use local data with filtering
       if (Array.isArray(localData)) {
-        const filtered = localFilter(localData, q, take, searchFields, displayColumns)
+        const filtered = localFilter(localData, q, maxItems, searchFields, displayColumns)
         setItems(filtered)
         setOpen(true)
         return
@@ -333,30 +338,43 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
 
   const debouncedFetchRef = useRef(
     debounce((q: string) => {
-      if (q.length < minChars) {
-        setItems([])
-        setOpen(false)
+      const trimmed = q.trim()
+      if (trimmed.length < minChars) {
+        if (showAllOnEmpty && trimmed.length === 0) {
+          doFetchData('', emptyResultLimit)
+        } else {
+          setItems([])
+          setOpen(false)
+        }
         return
       }
       doFetchData(q)
     }, delay),
   )
 
-  // Update debounced function when doFetchData changes
   useEffect(() => {
     debouncedFetchRef.current = debounce((q: string) => {
-      if (q.length < minChars) {
-        setItems([])
-        setOpen(false)
+      const trimmed = q.trim()
+      if (trimmed.length < minChars) {
+        if (showAllOnEmpty && trimmed.length === 0) {
+          doFetchData('', emptyResultLimit)
+        } else {
+          setItems([])
+          setOpen(false)
+        }
         return
       }
       doFetchData(q)
     }, delay)
-  }, [doFetchData, minChars, delay])
+  }, [doFetchData, minChars, delay, showAllOnEmpty, emptyResultLimit])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value
     setInputValue(v)
+    if (showAllOnEmpty && v.trim().length === 0) {
+      doFetchData('', emptyResultLimit)
+      return
+    }
     debouncedFetchRef.current(v)
   }
 
@@ -397,7 +415,16 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
   }
 
   const handleFocus = () => {
-    if ((inputValue || '').trim().length >= minChars || minChars === 0) {
+    const trimmed = (inputValue || '').trim()
+    if (trimmed.length === 0) {
+      if (showAllOnEmpty) {
+        doFetchData('', emptyResultLimit)
+      } else if (minChars === 0) {
+        debouncedFetchRef.current('')
+      }
+      return
+    }
+    if (trimmed.length >= minChars || minChars === 0) {
       debouncedFetchRef.current(inputValue)
     }
   }
@@ -409,7 +436,11 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
       return
     }
     inputRef.current?.focus()
-    debouncedFetchRef.current('')
+    if (showAllOnEmpty && (inputValue || '').trim().length === 0) {
+      doFetchData('', emptyResultLimit)
+    } else {
+      debouncedFetchRef.current('')
+    }
   }
 
   const renderHeader = () => {

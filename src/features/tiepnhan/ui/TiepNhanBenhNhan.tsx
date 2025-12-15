@@ -65,6 +65,17 @@ export function TiepNhanBenhNhan() {
   )
   const hanhchinhStatus = useSelector(selectHanhChinhStatus)
   const lookupsLoading = hanhchinhStatus === "loading"
+  const genderItems = genderOptions
+    .map((option) => {
+      const rawValue = option.ma ?? option.Ma ?? option.id ?? option.Id
+      const rawLabel = option.ten ?? option.Ten
+      if (rawValue == null || rawLabel == null) return null
+      return {
+        value: String(rawValue),
+        label: String(rawLabel),
+      }
+    })
+    .filter((item): item is { value: string; label: string } => Boolean(item && item.value && item.label))
   const occupationLookupOptions = toLookupOptions(occupationOptions)
   const nationalityLookupOptions = toLookupOptions(nationalityOptions)
   const ethnicityLookupOptions = toLookupOptions(ethnicityOptions)
@@ -112,14 +123,13 @@ export function TiepNhanBenhNhan() {
               error={getFieldError(fieldErrors, "tiepNhanBenhNhan.gender")}
               fieldPath="tiepNhanBenhNhan.gender"
             >
-              {genderOptions.length > 0 ? (
+              {genderItems.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
-                  {genderOptions.map((option) => {
-                    const value = option.ten || option.ma
-                    const checked = benhNhanData.gender === value
+                  {genderItems.map((item) => {
+                    const checked = benhNhanData.gender === item.value
                     return (
                       <label
-                        key={option.id}
+                        key={item.value}
                         className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
                           checked
                             ? "border-blue-600 bg-blue-50 text-blue-700"
@@ -130,14 +140,14 @@ export function TiepNhanBenhNhan() {
                           type="radio"
                           className="sr-only"
                           name="gender"
-                          value={value}
+                          value={item.value}
                           checked={checked}
                           disabled={lookupsLoading}
                           onChange={() =>
-                            updateTiepNhanBenhNhan({ gender: value })
+                            updateTiepNhanBenhNhan({ gender: item.value })
                           }
                         />
-                        {option.ten}
+                        {item.label}
                       </label>
                     )
                   })}
@@ -194,6 +204,8 @@ export function TiepNhanBenhNhan() {
               placeholder="Nhập Phường/Xã, Quận/Huyện, Tỉnh/TP"
               emptyText="Nhập để tìm địa chỉ"
               error={getFieldError(fieldErrors, "tiepNhanBenhNhan.phuongXa")}
+              showAllOnEmpty
+              emptyResultLimit={50}
             />
           </div>
 
