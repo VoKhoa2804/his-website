@@ -1,5 +1,4 @@
 import { Outlet } from 'react-router-dom'
-import { Sidebar } from './sidebar'
 import { Header } from './header'
 import { Footer } from './footer'
 
@@ -9,11 +8,10 @@ import { Footer } from './footer'
  */
 export function MainLayout() {
   return (
-    <div className="flex min-h-screen">
-      {/* <Sidebar /> */}
+    <div className="flex h-screen">
       <div className="flex flex-col flex-1">
         <Header />
-        <main className="flex-1 bg-background p-6">
+        <main className="flex-1 bg-background p-6 overflow-hidden">
           <Outlet />
         </main>
         <Footer/>

@@ -7,6 +7,7 @@ interface OccupationLookupProps {
   onSelect?: (occupation: Occupation | null) => void
   placeholder?: string
   className?: string
+  inputClassName?: string
   initialId?: string
   initialName?: string
   showHeader?: boolean
@@ -21,6 +22,7 @@ export const OccupationLookup: React.FC<OccupationLookupProps> = ({
   onSelect,
   placeholder = 'Nhập mã hoặc tên nghề nghiệp...',
   className,
+  inputClassName,
   initialId,
   initialName,
   showHeader = true,
@@ -42,6 +44,7 @@ export const OccupationLookup: React.FC<OccupationLookupProps> = ({
       take={50}
       placeholder={placeholder}
       className={className}
+      inputClassName={inputClassName}
       initialId={initialId}
       initialName={initialName}
       displayColumns={[

@@ -10,8 +10,10 @@ export interface TiepNhanFormData {
     emrCode: string
     visitReason: string
     visitType: string
+    patientType: string
     department: string
     room: string
+    priorityLevel: string
     referrer: string
   }
   
@@ -24,7 +26,9 @@ export interface TiepNhanFormData {
     gender: string
     occupation: string
     ethnicity: string
+    ethnicityCode: string
     nationality: string
+    nationalityCode: string
     houseNumber: string
     ward: string
     idType: string
@@ -76,8 +80,10 @@ const defaultFormData: TiepNhanFormData = {
     emrCode: "",
     visitReason: "",
     visitType: "",
+    patientType: "thu-phi",
     department: "",
     room: "",
+    priorityLevel: "",
     referrer: "",
   },
   tiepNhanBenhNhan: {
@@ -88,7 +94,9 @@ const defaultFormData: TiepNhanFormData = {
     gender: "",
     occupation: "",
     ethnicity: "Kinh",
+    ethnicityCode: "01",
     nationality: "Việt Nam",
+    nationalityCode: "000",
     houseNumber: "",
     ward: "",
     idType: "CCCD",
@@ -178,8 +186,8 @@ export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
         so_nha: tiepNhanBenhNhan.houseNumber,
         phuong_xa_id: tiepNhanBenhNhan.ward,
         nghe_nghiep_id: tiepNhanBenhNhan.occupation,
-        dan_toc_id: tiepNhanBenhNhan.ethnicity === "Kinh" ? "01" : undefined,
-        quoc_tich_id: tiepNhanBenhNhan.nationality === "Việt Nam" ? "000" : undefined,
+        dan_toc_id: tiepNhanBenhNhan.ethnicityCode || undefined,
+        quoc_tich_id: tiepNhanBenhNhan.nationalityCode || undefined,
       },
       the_bao_hiem: {
         benh_nhan_id: dangKyKham.patientCode,
