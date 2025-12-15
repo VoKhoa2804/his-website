@@ -45,6 +45,7 @@ interface IcdSelectDialogProps {
   onClose: () => void
   onConfirm?: (result: IcdDialogResult) => void
   title?: string
+  initialSelectedIds?: string[]  // Add this prop to pre-populate selections
 }
 
 // Demo data - 30 ICD codes
@@ -97,6 +98,7 @@ export function IcdSelectDialog({
   onClose,
   onConfirm,
   title = "Bệnh tả",
+  initialSelectedIds = [],
 }: IcdSelectDialogProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -112,15 +114,15 @@ export function IcdSelectDialog({
       row.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  // Reset state when dialog opens
+  // Reset state when dialog opens, but preserve initial selections
   useEffect(() => {
     if (open) {
       setSearchTerm("")
-      setSelectedIds(new Set())
+      setSelectedIds(new Set(initialSelectedIds))
       setFocusedIndex(0)
       setActiveCategoryId(null)
     }
-  }, [open])
+  }, [open, initialSelectedIds])
 
   // Scroll focused row into view
   useEffect(() => {

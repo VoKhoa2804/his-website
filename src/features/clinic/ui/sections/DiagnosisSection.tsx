@@ -133,6 +133,13 @@ export function DiagnosisSection() {
         onClose={() => setDialogOpen(false)}
         onConfirm={handleIcdConfirm}
         title={activeDialogType === 'preliminary' ? 'Chẩn đoán sơ bộ' : 'Chẩn đoán xác định'}
+        initialSelectedIds={
+          activeDialogType === 'preliminary'
+            ? preliminaryDiagnoses.map(d => d.id)
+            : activeDialogType === 'confirmed'
+            ? confirmedDiagnoses.map(d => d.id)
+            : []
+        }
       />
     </div>
   );
