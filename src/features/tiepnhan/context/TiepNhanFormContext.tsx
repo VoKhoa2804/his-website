@@ -15,6 +15,7 @@ export interface TiepNhanFormData {
     patientType: string
     department: string
     room: string
+    uuTien: string
     priorityLevel: string
     referrer: string
   }
@@ -33,6 +34,9 @@ export interface TiepNhanFormData {
     nationalityCode: string
     houseNumber: string
     ward: string
+    tinhThanh: string
+    quanHuyen: string
+    phuongXa: string
     idType: string
     idNumber: string
     issueDate: string
@@ -89,6 +93,7 @@ const defaultFormData: TiepNhanFormData = {
     patientType: "thu-phi",
     department: "",
     room: "",
+    uuTien: "",
     priorityLevel: "",
     referrer: "",
   },
@@ -105,6 +110,9 @@ const defaultFormData: TiepNhanFormData = {
     nationalityCode: "000",
     houseNumber: "",
     ward: "",
+    tinhThanh: "",
+    quanHuyen: "",
+    phuongXa: "",
     idType: "CCCD",
     idNumber: "",
     issueDate: "",
@@ -207,9 +215,9 @@ export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
         dien_thoai: tiepNhanBenhNhan.phoneNumber,
         cccd: tiepNhanBenhNhan.idNumber,
         ngay_cap_cccd: tiepNhanBenhNhan.issueDate || undefined,
-        dia_chi: `${tiepNhanBenhNhan.houseNumber} ${tiepNhanBenhNhan.ward}`.trim(),
-        so_nha: tiepNhanBenhNhan.houseNumber,
-        phuong_xa_id: tiepNhanBenhNhan.ward,
+      dia_chi: `${tiepNhanBenhNhan.houseNumber} ${tiepNhanBenhNhan.phuongXa || tiepNhanBenhNhan.ward}`.trim(),
+      so_nha: tiepNhanBenhNhan.houseNumber,
+      phuong_xa_id: tiepNhanBenhNhan.phuongXa || tiepNhanBenhNhan.ward,
         nghe_nghiep_id: tiepNhanBenhNhan.occupation,
         dan_toc_id: tiepNhanBenhNhan.ethnicityCode || undefined,
         quoc_tich_id: tiepNhanBenhNhan.nationalityCode || undefined,
@@ -238,7 +246,7 @@ export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
       loai_kcb_id: dangKyKham.visitType || "01",
       trang_thai_kham: 1,
       so_thu_tu: 0,
-      uu_tien_id: "1",
+      uu_tien_id: dangKyKham.uuTien || dangKyKham.priorityLevel || "1",
       bs_gioi_thieu_id: dangKyKham.referrer || "TD",
       ma_the: theBaoHiem.insuranceNumber,
       ma_quyen_loi: theBaoHiem.benefitLevel,

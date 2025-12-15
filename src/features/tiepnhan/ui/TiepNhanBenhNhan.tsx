@@ -1,24 +1,73 @@
-import type { ReactNode } from "react"
+import { useCallback, type ReactNode } from "react"
 import { Phone } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Input } from "@/shared/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
 import { SectionTitle } from "@/shared/ui/sectiontitle"
 import { Label } from "@/shared/ui/label"
-import { OccupationLookup } from "./OccupationLookup"
 import { useTiepNhanForm } from "../hooks/useTiepNhanForm"
-import { NationalityLookup } from "./NationalityLookup"
-import { EthnicityLookup } from "./EthnicityLookup"
 import { getFieldError } from "../model/tiepnhan.validation"
+import { useSelector } from "react-redux"
+import { selectHanhChinhStatus, selectOptionsByKey } from "@/features/hanhchinh/model/hanhchinhSlice"
+import {
+  selectAddressSearchIndex,
+  searchAddressOptions,
+  type AddressOption,
+} from "@/features/hanhchinh/model/selectors"
+import { LookupField, type LookupOption } from "@/shared/ui/lookups"
+
+const relationshipOptions: LookupOption[] = [
+  { value: "cha-me", label: "Cha/Mẹ" },
+  { value: "vo-chong", label: "Vợ/Chồng" },
+  { value: "con", label: "Con" },
+  { value: "khac", label: "Khác" },
+]
+
+function toLookupOptions(items: Array<{ id: string; ma?: string; ten?: string }> = []) {
+  return items
+    .filter(Boolean)
+    .map((item) => ({
+      value: item.ma || item.id,
+      label: item.ten || item.ma || item.id,
+      ma: item.ma,
+    }))
+}
 
 export function TiepNhanBenhNhan() {
   const { formData, updateTiepNhanBenhNhan, fieldErrors } = useTiepNhanForm()
   const benhNhanData = formData.tiepNhanBenhNhan
-  const genderOptions = [
-    { value: "Nam", label: "Nam" },
-    { value: "Nữ", label: "Nữ" },
-    { value: "Khác", label: "Khác" },
-  ]
+  const genderOptions = useSelector(selectOptionsByKey("GioiTinh"))
+  const occupationOptions = useSelector(selectOptionsByKey("NgheNghiep"))
+  const nationalityOptions = useSelector(selectOptionsByKey("QuocTich"))
+  const ethnicityOptions = useSelector(selectOptionsByKey("DanToc"))
+  const addressIndex = useSelector(selectAddressSearchIndex)
+  const handleAddressSearch = useCallback(
+    async (query: string) => {
+      const matches = searchAddressOptions(addressIndex, query)
+      return matches.map((match) => ({
+        value: match.value,
+        label: match.label,
+        meta: match,
+      }))
+    },
+    [addressIndex],
+  )
+  const handleAddressSelect = useCallback(
+    (option: LookupOption) => {
+      const meta = option.meta as AddressOption | undefined
+      updateTiepNhanBenhNhan({
+        tinhThanh: meta?.tinhId || meta?.tinhName || "",
+        quanHuyen: meta?.huyenId || meta?.huyenName || "",
+        phuongXa: meta?.xaId || option.value,
+        ward: option.label,
+      })
+    },
+    [updateTiepNhanBenhNhan],
+  )
+  const hanhchinhStatus = useSelector(selectHanhChinhStatus)
+  const lookupsLoading = hanhchinhStatus === "loading"
+  const occupationLookupOptions = toLookupOptions(occupationOptions)
+  const nationalityLookupOptions = toLookupOptions(nationalityOptions)
+  const ethnicityLookupOptions = toLookupOptions(ethnicityOptions)
 
   return (
     <Card className="border border-gray-200 shadow-sm">
@@ -63,33 +112,41 @@ export function TiepNhanBenhNhan() {
               error={getFieldError(fieldErrors, "tiepNhanBenhNhan.gender")}
               fieldPath="tiepNhanBenhNhan.gender"
             >
-              <div className="flex flex-wrap gap-2">
-                {genderOptions.map((option) => {
-                  const checked = benhNhanData.gender === option.value
-                  return (
-                    <label
-                      key={option.value}
-                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                        checked
-                          ? "border-blue-600 bg-blue-50 text-blue-700"
-                          : "border-gray-200 bg-white text-gray-600 hover:border-blue-300"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        className="sr-only"
-                        name="gender"
-                        value={option.value}
-                        checked={checked}
-                        onChange={() =>
-                          updateTiepNhanBenhNhan({ gender: option.value })
-                        }
-                      />
-                      {option.label}
-                    </label>
-                  )
-                })}
-              </div>
+              {genderOptions.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {genderOptions.map((option) => {
+                    const value = option.ten || option.ma
+                    const checked = benhNhanData.gender === value
+                    return (
+                      <label
+                        key={option.id}
+                        className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                          checked
+                            ? "border-blue-600 bg-blue-50 text-blue-700"
+                            : "border-gray-200 bg-white text-gray-600 hover:border-blue-300"
+                        } ${lookupsLoading ? "pointer-events-none opacity-60" : ""}`}
+                      >
+                        <input
+                          type="radio"
+                          className="sr-only"
+                          name="gender"
+                          value={value}
+                          checked={checked}
+                          disabled={lookupsLoading}
+                          onChange={() =>
+                            updateTiepNhanBenhNhan({ gender: value })
+                          }
+                        />
+                        {option.ten}
+                      </label>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500">
+                  {lookupsLoading ? "Đang tải..." : "Chưa có dữ liệu"}
+                </p>
+              )}
             </Field>
           </div>
 
@@ -125,15 +182,19 @@ export function TiepNhanBenhNhan() {
           </div>
 
           <div className="md:col-span-6">
-            <Field label="Phường/Xã, Tỉnh/TP">
-              <Input
-                value={benhNhanData.ward}
-                onChange={(e) =>
-                  updateTiepNhanBenhNhan({ ward: e.target.value })
-                }
-                className="h-9 text-sm"
-              />
-            </Field>
+            <LookupField
+              label="Địa chỉ hành chính"
+              value={benhNhanData.phuongXa}
+              valueLabel={benhNhanData.ward}
+              onChange={(value) => updateTiepNhanBenhNhan({ phuongXa: value })}
+              onSelectOption={handleAddressSelect}
+              options={[]}
+              onSearch={handleAddressSearch}
+              loading={lookupsLoading}
+              placeholder="Nhập Phường/Xã, Quận/Huyện, Tỉnh/TP"
+              emptyText="Nhập để tìm địa chỉ"
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.phuongXa")}
+            />
           </div>
 
           <div className="md:col-span-4">
@@ -193,63 +254,54 @@ export function TiepNhanBenhNhan() {
           </div>
 
           <div className="md:col-span-6">
-            <Field
+            <LookupField
               label="Nghề nghiệp"
               required
+              value={benhNhanData.occupation}
+              onChange={(value) => updateTiepNhanBenhNhan({ occupation: value })}
+              options={occupationLookupOptions}
+              loading={lookupsLoading}
               error={getFieldError(fieldErrors, "tiepNhanBenhNhan.occupation")}
-              fieldPath="tiepNhanBenhNhan.occupation"
-            >
-              <OccupationLookup
-                className="w-full"
-                inputClassName="h-9 text-sm"
-                initialId={benhNhanData.occupation}
-                onSelect={(occupation) => {
-                  updateTiepNhanBenhNhan({ occupation: occupation?.ma || "" })
-                }}
-                showHeader={true}
-                showBorders={true}
-              />
-            </Field>
+              placeholder="Nhập mã hoặc tên nghề nghiệp..."
+            />
           </div>
 
           <div className="md:col-span-3">
-            <Field
+            <LookupField
               label="Quốc tịch"
               required
+              value={benhNhanData.nationalityCode}
+              onChange={(value) => {
+                const option = nationalityLookupOptions.find((item) => item.value === value)
+                updateTiepNhanBenhNhan({
+                  nationalityCode: value,
+                  nationality: option?.label || "",
+                })
+              }}
+              options={nationalityLookupOptions}
+              loading={lookupsLoading}
               error={getFieldError(fieldErrors, "tiepNhanBenhNhan.nationality")}
-              fieldPath="tiepNhanBenhNhan.nationality"
-            >
-              <NationalityLookup
-                code={benhNhanData.nationalityCode}
-                name={benhNhanData.nationality}
-                onSelect={(value) =>
-                  updateTiepNhanBenhNhan({
-                    nationality: value.name,
-                    nationalityCode: value.code,
-                  })
-                }
-              />
-            </Field>
+              placeholder="Nhập mã hoặc tên quốc tịch"
+            />
           </div>
 
           <div className="md:col-span-3">
-            <Field
+            <LookupField
               label="Dân tộc"
               required
+              value={benhNhanData.ethnicityCode}
+              onChange={(value) => {
+                const option = ethnicityLookupOptions.find((item) => item.value === value)
+                updateTiepNhanBenhNhan({
+                  ethnicityCode: value,
+                  ethnicity: option?.label || "",
+                })
+              }}
+              options={ethnicityLookupOptions}
+              loading={lookupsLoading}
               error={getFieldError(fieldErrors, "tiepNhanBenhNhan.ethnicity")}
-              fieldPath="tiepNhanBenhNhan.ethnicity"
-            >
-              <EthnicityLookup
-                code={benhNhanData.ethnicityCode}
-                name={benhNhanData.ethnicity}
-                onSelect={(value) =>
-                  updateTiepNhanBenhNhan({
-                    ethnicity: value.name,
-                    ethnicityCode: value.code,
-                  })
-                }
-              />
-            </Field>
+              placeholder="Nhập mã hoặc tên dân tộc"
+            />
           </div>
         </div>
 
@@ -258,24 +310,13 @@ export function TiepNhanBenhNhan() {
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
           <div className="md:col-span-4">
-            <Field label="Quan hệ với NB">
-              <Select
-                value={benhNhanData.relationship}
-                onValueChange={(value: string) =>
-                  updateTiepNhanBenhNhan({ relationship: value })
-                }
-              >
-                <SelectTrigger className="h-9 text-sm bg-white">
-                  <SelectValue placeholder="Chọn" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cha-me">Cha/Mẹ</SelectItem>
-                  <SelectItem value="vo-chong">Vợ/Chồng</SelectItem>
-                  <SelectItem value="con">Con</SelectItem>
-                  <SelectItem value="khac">Khác</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
+            <LookupField
+              label="Quan hệ với NB"
+              value={benhNhanData.relationship}
+              onChange={(value) => updateTiepNhanBenhNhan({ relationship: value })}
+              options={relationshipOptions}
+              placeholder="Chọn"
+            />
           </div>
 
           <div className="md:col-span-4">

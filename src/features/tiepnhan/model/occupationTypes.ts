@@ -1,5 +1,3 @@
-export interface Occupation {
-  id: string
-  ma: string
-  ten: string
-}
+import type { HanhChinhOption } from "@/features/hanhchinh/model/hanhchinhSlice"
+
+export type Occupation = HanhChinhOption

@@ -38,6 +38,7 @@ export const dangKyKhamSchema = z.object({
   patientType: z.string().optional(),
   department: z.string().min(1, "Vui lòng chọn đối tượng KCB"),
   room: z.string().min(1, "Vui lòng chọn phòng khám"),
+  uuTien: z.string().optional(),
   priorityLevel: z.string().optional(),
   referrer: z.string().optional(),
 })
@@ -55,6 +56,9 @@ export const tiepNhanBenhNhanSchema = z.object({
   nationalityCode: z.string().optional(),
   houseNumber: z.string().optional(),
   ward: z.string().optional(),
+  tinhThanh: z.string().optional(),
+  quanHuyen: z.string().optional(),
+  phuongXa: z.string().optional(),
   idType: z.string().optional(),
   idNumber: z.string().min(1, "Vui lòng nhập số CCCD/Hộ chiếu"),
   issueDate: optionalIsoDateField,

@@ -13,7 +13,7 @@ type DisplayColumn = {
 
 type LookupItem = Record<string, any>
 
-type LookupValue = {
+export type LookupValue = {
   id: string
   name: string
   item?: LookupItem | null

@@ -8,21 +8,40 @@ import {
   CardTitle,
 } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
 import { useTiepNhanForm } from "../hooks/useTiepNhanForm";
 import { getFieldError } from "../model/tiepnhan.validation";
+import { LookupField, type LookupOption } from "@/shared/ui/lookups";
+import { useSelector } from "react-redux";
+import { selectHanhChinhStatus, selectOptionsByKey } from "@/features/hanhchinh/model/hanhchinhSlice";
+
+function toLookupOptions(items: Array<{ id: string; ma?: string; ten?: string }> = []) {
+  return items
+    .filter(Boolean)
+    .map((item) => ({
+      value: item.ma || item.id,
+      label: item.ten || item.ma || item.id,
+      ma: item.ma,
+    }))
+}
 
 export function DangKyKham() {
   const { formData, updateDangKyKham, fieldErrors } = useTiepNhanForm()
   const dangKyData = formData.dangKyKham
+  const hanhChinhStatus = useSelector(selectHanhChinhStatus)
+  const loading = hanhChinhStatus === "loading"
+  const phongBanOptions = useSelector(selectOptionsByKey("PhongBan"))
+  const uuTienOptions = useSelector(selectOptionsByKey("UuTien"))
+  const bsGioiThieuOptions = useSelector(selectOptionsByKey("BsGioiThieu"))
+  const loaiKcbOptions = useSelector(selectOptionsByKey("LoaiKCB"))
+  const doiTuongKcbOptions = useSelector(selectOptionsByKey("DoiTuongKCB"))
+
+  const loaiKcbLookupOptions = toLookupOptions(loaiKcbOptions)
+  const doiTuongKcbLookupOptions = toLookupOptions(doiTuongKcbOptions)
+  const phongBanLookupOptions = toLookupOptions(phongBanOptions)
+  const uuTienLookupOptions = toLookupOptions(uuTienOptions)
+  const bsGioiThieuLookupOptions = toLookupOptions(bsGioiThieuOptions)
 
   return (
     <Card className="border border-sky-100 bg-sky-50/50 shadow-sm ring-1 ring-sky-200">
@@ -77,57 +96,27 @@ export function DangKyKham() {
             </div>
 
             <div className="md:col-span-4">
-              <Field
+              <LookupField
                 label="Loại KCB"
                 required
+                value={dangKyData.visitType}
+                onChange={(value) => updateDangKyKham({ visitType: value })}
+                options={loaiKcbLookupOptions}
+                loading={loading}
                 error={getFieldError(fieldErrors, "dangKyKham.visitType")}
-                fieldPath="dangKyKham.visitType"
-              >
-                <Select
-                  value={dangKyData.visitType}
-                  onValueChange={(value) =>
-                    updateDangKyKham({ visitType: value })
-                  }
-                >
-                  <SelectTrigger className="h-9 text-sm bg-white">
-                    <SelectValue placeholder="Chọn" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="kham-moi">Khám mới</SelectItem>
-                    <SelectItem value="tai-kham">Tái khám</SelectItem>
-                    <SelectItem value="cap-cuu">Cấp cứu</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
+              />
             </div>
 
             <div className="md:col-span-4">
-              <Field
+              <LookupField
                 label="Đối tượng KCB"
                 required
+                value={dangKyData.department}
+                onChange={(value) => updateDangKyKham({ department: value })}
+                options={doiTuongKcbLookupOptions}
+                loading={loading}
                 error={getFieldError(fieldErrors, "dangKyKham.department")}
-                fieldPath="dangKyKham.department"
-              >
-                <Select
-                  value={dangKyData.department}
-                  onValueChange={(value) =>
-                    updateDangKyKham({ department: value })
-                  }
-                >
-                  <SelectTrigger className="h-9 text-sm bg-white">
-                    <SelectValue placeholder="Chọn" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ngoai-tong-quat">
-                      Ngoại tổng quát
-                    </SelectItem>
-                    <SelectItem value="noi-tong-quat">
-                      Nội tổng quát
-                    </SelectItem>
-                    <SelectItem value="kham-yc">Khám yêu cầu</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
+              />
             </div>
 
             <div className="md:col-span-8">
@@ -149,71 +138,42 @@ export function DangKyKham() {
             </div>
 
             <div className="md:col-span-4">
-              <Field label="Người giới thiệu">
-                <Select
-                  value={dangKyData.referrer}
-                  onValueChange={(value) =>
-                    updateDangKyKham({ referrer: value })
-                  }
-                >
-                  <SelectTrigger className="h-9 text-sm bg-white">
-                    <SelectValue placeholder="Chọn" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="tu-den">1. Tự đến</SelectItem>
-                    <SelectItem value="chuyen-vien">
-                      2. Giới thiệu / chuyển viện
-                    </SelectItem>
-                    <SelectItem value="dv">9. KCB Dịch vụ</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
+              <LookupField
+                label="Người giới thiệu"
+                value={dangKyData.referrer}
+                onChange={(value) => updateDangKyKham({ referrer: value })}
+                options={bsGioiThieuLookupOptions}
+                loading={loading}
+              />
             </div>
 
             <div className="md:col-span-4">
-              <Field
+              <LookupField
                 label="Phòng khám"
                 required
+                value={dangKyData.room}
+                onChange={(value) => updateDangKyKham({ room: value })}
+                options={phongBanLookupOptions}
+                loading={loading}
                 error={getFieldError(fieldErrors, "dangKyKham.room")}
-                fieldPath="dangKyKham.room"
-              >
-                <Select
-                  value={dangKyData.room}
-                  onValueChange={(value) =>
-                    updateDangKyKham({ room: value })
-                  }
-                >
-                  <SelectTrigger className="h-9 text-sm bg-white">
-                    <SelectValue placeholder="Chọn phòng" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pk-01">PK 01</SelectItem>
-                    <SelectItem value="pk-02">PK 02</SelectItem>
-                    <SelectItem value="pk-03">PK 03</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
+                placeholder="Chọn phòng"
+              />
             </div>
 
             <div className="md:col-span-4">
-              <Field label="Ưu tiên tiếp đón">
-                <Select
-                  value={dangKyData.priorityLevel}
-                  onValueChange={(value) =>
-                    updateDangKyKham({ priorityLevel: value })
-                  }
-                >
-                  <SelectTrigger className="h-9 text-sm bg-white">
-                    <SelectValue placeholder="Chọn" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="khong">Không ưu tiên</SelectItem>
-                    <SelectItem value="cao-tuoi">Người cao tuổi</SelectItem>
-                    <SelectItem value="tre-em">Trẻ em</SelectItem>
-                    <SelectItem value="cap-cuu">Cấp cứu</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
+              <LookupField
+                label="Ưu tiên tiếp đón"
+                value={dangKyData.uuTien}
+                onChange={(value) => {
+                  updateDangKyKham({
+                    uuTien: value,
+                    priorityLevel: value, // TODO: remove priorityLevel when legacy usages are cleaned up
+                  })
+                }}
+                options={uuTienLookupOptions}
+                loading={loading}
+                error={getFieldError(fieldErrors, "dangKyKham.uuTien")}
+              />
             </div>
           </div>
         </div>
