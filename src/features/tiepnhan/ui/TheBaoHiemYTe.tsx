@@ -6,13 +6,14 @@ import { SectionTitle } from "@/shared/ui/sectiontitle"
 import { Checkbox } from "@/shared/ui/checkbox"
 import { Label } from "@/shared/ui/label"
 import { useTiepNhanForm } from "../hooks/useTiepNhanForm"
+import { getFieldError } from "../model/tiepnhan.validation"
 
 interface TheBaoHiemYTeProps {
   collapsed?: boolean
 }
 
 export function TheBaoHiemYTe({ collapsed = false }: TheBaoHiemYTeProps) {
-  const { formData, updateTheBaoHiem } = useTiepNhanForm()
+  const { formData, updateTheBaoHiem, fieldErrors } = useTiepNhanForm()
   const baoHiemData = formData.theBaoHiem
 
   return (
@@ -45,7 +46,12 @@ export function TheBaoHiemYTe({ collapsed = false }: TheBaoHiemYTeProps) {
         <CardContent className="space-y-6 p-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-12">
             <div className="sm:col-span-2 xl:col-span-6">
-              <Field label="Mã thẻ BHYT" required>
+              <Field
+                label="Mã thẻ BHYT"
+                required
+                error={getFieldError(fieldErrors, "theBaoHiem.insuranceNumber")}
+                fieldPath="theBaoHiem.insuranceNumber"
+              >
                 <Input
                   value={baoHiemData.insuranceNumber}
                   onChange={(e) =>
@@ -57,7 +63,12 @@ export function TheBaoHiemYTe({ collapsed = false }: TheBaoHiemYTeProps) {
               </Field>
             </div>
             <div className="sm:col-span-1 xl:col-span-3">
-              <Field label="Mức hưởng" required>
+              <Field
+                label="Mức hưởng"
+                required
+                error={getFieldError(fieldErrors, "theBaoHiem.benefitLevel")}
+                fieldPath="theBaoHiem.benefitLevel"
+              >
                 <Input
                   value={baoHiemData.benefitLevel}
                   onChange={(e) =>
@@ -69,7 +80,12 @@ export function TheBaoHiemYTe({ collapsed = false }: TheBaoHiemYTeProps) {
               </Field>
             </div>
             <div className="sm:col-span-1 xl:col-span-3">
-              <Field label="Mã KV" required>
+              <Field
+                label="Mã KV"
+                required
+                error={getFieldError(fieldErrors, "theBaoHiem.maKV")}
+                fieldPath="theBaoHiem.maKV"
+              >
                 <Input
                   value={baoHiemData.maKV}
                   onChange={(e) =>
@@ -82,7 +98,12 @@ export function TheBaoHiemYTe({ collapsed = false }: TheBaoHiemYTeProps) {
             </div>
 
             <div className="sm:col-span-2 xl:col-span-12">
-              <Field label="Địa chỉ theo thẻ" required>
+              <Field
+                label="Địa chỉ theo thẻ"
+                required
+                error={getFieldError(fieldErrors, "theBaoHiem.addressOnCard")}
+                fieldPath="theBaoHiem.addressOnCard"
+              >
                 <Input
                   value={baoHiemData.addressOnCard}
                   onChange={(e) =>
@@ -144,7 +165,12 @@ export function TheBaoHiemYTe({ collapsed = false }: TheBaoHiemYTeProps) {
             </div>
 
             <div className="sm:col-span-2 xl:col-span-12">
-              <Field label="Nơi đăng ký KCB ban đầu" required>
+              <Field
+                label="Nơi đăng ký KCB ban đầu"
+                required
+                error={getFieldError(fieldErrors, "theBaoHiem.registrationPlace")}
+                fieldPath="theBaoHiem.registrationPlace"
+              >
                 <Input
                   value={baoHiemData.registrationPlace}
                   onChange={(e) =>
@@ -253,17 +279,22 @@ function Field({
   label,
   children,
   required,
+  error,
+  fieldPath,
 }: {
   label: string
   children: ReactNode
   required?: boolean
+  error?: string
+  fieldPath?: string
 }) {
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5" data-field-path={fieldPath}>
       <Label className="text-sm font-medium text-gray-700">
         {label} {required && <span className="text-red-600">*</span>}
       </Label>
       {children}
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   )
 }

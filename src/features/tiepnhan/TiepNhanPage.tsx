@@ -11,17 +11,36 @@ import { PaymentTypeSegment } from "./ui/PaymentTypeSegment"
 import { BhytSheet } from "./ui/BhytSheet"
 import { BhytSummaryCard } from "./ui/BhytSummaryCard"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/shared/ui/dialog"
+import type { FieldErrorMap } from "./model/tiepnhan.validation"
 
 function TiepNhanPageContent() {
   const [isLoading, setIsLoading] = useState(false)
-  const { getApiRequest, resetForm } = useTiepNhanForm()
+  const { getApiRequest, resetForm, validateAll } = useTiepNhanForm()
   const [paymentType, setPaymentType] = useState<PaymentType>("THU_PHI")
   const [bhytSheetOpen, setBhytSheetOpen] = useState(false)
   const [bhytInfo, setBhytInfo] = useState<BhytInfo | null>(null)
   const [pendingPaymentType, setPendingPaymentType] = useState<PaymentType | null>(null)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
 
+  const focusFirstInvalidField = (errors: FieldErrorMap) => {
+    const firstPath = Object.keys(errors)[0]
+    if (!firstPath) return
+    const fieldContainer = document.querySelector<HTMLElement>(`[data-field-path="${firstPath}"]`)
+    if (!fieldContainer) return
+    const focusable =
+      fieldContainer.querySelector<HTMLElement>("input, select, textarea, [role='combobox']") ||
+      fieldContainer as HTMLElement
+    focusable.focus()
+  }
+
   const handleSave = async () => {
+    const validation = validateAll({ paymentType })
+    if (!validation.ok) {
+      focusFirstInvalidField(validation.errors)
+      toast.error("Vui lòng kiểm tra lại thông tin bắt buộc")
+      return
+    }
+
     setIsLoading(true)
 
     try {

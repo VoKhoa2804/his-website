@@ -9,9 +9,10 @@ import { OccupationLookup } from "./OccupationLookup"
 import { useTiepNhanForm } from "../hooks/useTiepNhanForm"
 import { NationalityLookup } from "./NationalityLookup"
 import { EthnicityLookup } from "./EthnicityLookup"
+import { getFieldError } from "../model/tiepnhan.validation"
 
 export function TiepNhanBenhNhan() {
-  const { formData, updateTiepNhanBenhNhan } = useTiepNhanForm()
+  const { formData, updateTiepNhanBenhNhan, fieldErrors } = useTiepNhanForm()
   const benhNhanData = formData.tiepNhanBenhNhan
   const genderOptions = [
     { value: "Nam", label: "Nam" },
@@ -38,7 +39,12 @@ export function TiepNhanBenhNhan() {
       <CardContent className="p-4 space-y-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
           <div className="md:col-span-6">
-            <Field label="Họ và tên" required>
+            <Field
+              label="Họ và tên"
+              required
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.fullName")}
+              fieldPath="tiepNhanBenhNhan.fullName"
+            >
               <Input
                 value={benhNhanData.fullName}
                 onChange={(e) =>
@@ -51,7 +57,12 @@ export function TiepNhanBenhNhan() {
           </div>
 
           <div className="md:col-span-3">
-            <Field label="Giới tính" required>
+            <Field
+              label="Giới tính"
+              required
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.gender")}
+              fieldPath="tiepNhanBenhNhan.gender"
+            >
               <div className="flex flex-wrap gap-2">
                 {genderOptions.map((option) => {
                   const checked = benhNhanData.gender === option.value
@@ -83,7 +94,12 @@ export function TiepNhanBenhNhan() {
           </div>
 
           <div className="md:col-span-3">
-            <Field label="Ngày sinh" required>
+            <Field
+              label="Ngày sinh"
+              required
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.dateOfBirth")}
+              fieldPath="tiepNhanBenhNhan.dateOfBirth"
+            >
               <Input
                 type="date"
                 value={benhNhanData.dateOfBirth}
@@ -134,7 +150,12 @@ export function TiepNhanBenhNhan() {
           </div>
 
           <div className="md:col-span-4">
-            <Field label="CCCD/Hộ chiếu" required>
+            <Field
+              label="CCCD/Hộ chiếu"
+              required
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.idNumber")}
+              fieldPath="tiepNhanBenhNhan.idNumber"
+            >
               <Input
                 value={benhNhanData.idNumber}
                 onChange={(e) =>
@@ -172,7 +193,12 @@ export function TiepNhanBenhNhan() {
           </div>
 
           <div className="md:col-span-6">
-            <Field label="Nghề nghiệp" required>
+            <Field
+              label="Nghề nghiệp"
+              required
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.occupation")}
+              fieldPath="tiepNhanBenhNhan.occupation"
+            >
               <OccupationLookup
                 className="w-full"
                 inputClassName="h-9 text-sm"
@@ -187,7 +213,12 @@ export function TiepNhanBenhNhan() {
           </div>
 
           <div className="md:col-span-3">
-            <Field label="Quốc tịch" required>
+            <Field
+              label="Quốc tịch"
+              required
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.nationality")}
+              fieldPath="tiepNhanBenhNhan.nationality"
+            >
               <NationalityLookup
                 code={benhNhanData.nationalityCode}
                 name={benhNhanData.nationality}
@@ -202,7 +233,12 @@ export function TiepNhanBenhNhan() {
           </div>
 
           <div className="md:col-span-3">
-            <Field label="Dân tộc" required>
+            <Field
+              label="Dân tộc"
+              required
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.ethnicity")}
+              fieldPath="tiepNhanBenhNhan.ethnicity"
+            >
               <EthnicityLookup
                 code={benhNhanData.ethnicityCode}
                 name={benhNhanData.ethnicity}
@@ -282,23 +318,28 @@ function Field({
   label,
   children,
   required,
+  error,
+  fieldPath,
 }: {
   label: string
   children: ReactNode
   required?: boolean
+  error?: string
+  fieldPath?: string
 }) {
   // Tách sao nếu label có *
   const hasStar = label.includes("*")
   const cleanLabel = hasStar ? label.replace("*", "").trim() : label
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5" data-field-path={fieldPath}>
       <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
         {cleanLabel}
         {(required || hasStar) && <span className="text-red-600">*</span>}
       </Label>
 
       {children}
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   )
 }

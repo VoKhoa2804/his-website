@@ -18,9 +18,10 @@ import {
 import { Button } from "@/shared/ui/button";
 import { Label } from "@/shared/ui/label";
 import { useTiepNhanForm } from "../hooks/useTiepNhanForm";
+import { getFieldError } from "../model/tiepnhan.validation";
 
 export function DangKyKham() {
-  const { formData, updateDangKyKham } = useTiepNhanForm()
+  const { formData, updateDangKyKham, fieldErrors } = useTiepNhanForm()
   const dangKyData = formData.dangKyKham
 
   return (
@@ -76,7 +77,12 @@ export function DangKyKham() {
             </div>
 
             <div className="md:col-span-4">
-              <Field label="Loại KCB">
+              <Field
+                label="Loại KCB"
+                required
+                error={getFieldError(fieldErrors, "dangKyKham.visitType")}
+                fieldPath="dangKyKham.visitType"
+              >
                 <Select
                   value={dangKyData.visitType}
                   onValueChange={(value) =>
@@ -96,7 +102,12 @@ export function DangKyKham() {
             </div>
 
             <div className="md:col-span-4">
-              <Field label="Đối tượng KCB">
+              <Field
+                label="Đối tượng KCB"
+                required
+                error={getFieldError(fieldErrors, "dangKyKham.department")}
+                fieldPath="dangKyKham.department"
+              >
                 <Select
                   value={dangKyData.department}
                   onValueChange={(value) =>
@@ -120,7 +131,12 @@ export function DangKyKham() {
             </div>
 
             <div className="md:col-span-8">
-              <Field label="Lý do đến khám">
+              <Field
+                label="Lý do đến khám"
+                required
+                error={getFieldError(fieldErrors, "dangKyKham.visitReason")}
+                fieldPath="dangKyKham.visitReason"
+              >
                 <Input
                   value={dangKyData.visitReason}
                   onChange={(e) =>
@@ -155,7 +171,12 @@ export function DangKyKham() {
             </div>
 
             <div className="md:col-span-4">
-              <Field label="Phòng khám">
+              <Field
+                label="Phòng khám"
+                required
+                error={getFieldError(fieldErrors, "dangKyKham.room")}
+                fieldPath="dangKyKham.room"
+              >
                 <Select
                   value={dangKyData.room}
                   onValueChange={(value) =>
@@ -208,17 +229,21 @@ function Field({
   label,
   children,
   required,
+  error,
+  fieldPath,
 }: {
   label: string;
   children: ReactNode;
   required?: boolean;
+  error?: string;
+  fieldPath?: string;
 }) {
   // Tách sao nếu label có *
   const hasStar = label.includes("*");
   const cleanLabel = hasStar ? label.replace("*", "").trim() : label;
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5" data-field-path={fieldPath}>
       <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
         {cleanLabel}
         {(required || hasStar) && (
@@ -227,6 +252,9 @@ function Field({
       </Label>
 
       {children}
+      {error && (
+        <p className="text-xs text-red-600">{error}</p>
+      )}
     </div>
   );
 }

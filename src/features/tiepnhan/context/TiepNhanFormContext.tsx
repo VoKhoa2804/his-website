@@ -1,5 +1,7 @@
 import { createContext, useState, ReactNode } from "react"
 import type { TiepNhanRequest } from "../model/tiepNhanTypes"
+import type { ValidateContext, ValidationResult, FieldErrorMap } from "../model/tiepnhan.validation"
+import { validateTiepNhanForm } from "../model/tiepnhan.validation"
 
 // Form data interface matching the structure of child components
 export interface TiepNhanFormData {
@@ -71,6 +73,10 @@ interface TiepNhanFormContextType {
   updateTheBaoHiem: (data: Partial<TiepNhanFormData['theBaoHiem']>) => void
   resetForm: () => void
   getApiRequest: () => TiepNhanRequest
+  fieldErrors: FieldErrorMap
+  setFieldErrors: (errors: FieldErrorMap) => void
+  clearFieldErrors: (paths: string[]) => void
+  validateAll: (context?: ValidateContext) => ValidationResult
 }
 
 const defaultFormData: TiepNhanFormData = {
@@ -136,12 +142,28 @@ export { TiepNhanFormContext }
 
 export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
   const [formData, setFormData] = useState<TiepNhanFormData>(defaultFormData)
+  const [fieldErrors, setFieldErrors] = useState<FieldErrorMap>({})
+
+  const clearFieldErrors = (paths: string[]) => {
+    if (!paths.length) return
+    setFieldErrors((prev) => {
+      const next = { ...prev }
+      for (const path of paths) {
+        delete next[path]
+      }
+      return next
+    })
+  }
+
+  const buildPaths = <T extends keyof TiepNhanFormData>(scope: T, data: Partial<TiepNhanFormData[T]>) =>
+    Object.keys(data).map((key) => `${scope}.${key}`)
 
   const updateDangKyKham = (data: Partial<TiepNhanFormData['dangKyKham']>) => {
     setFormData(prev => ({
       ...prev,
       dangKyKham: { ...prev.dangKyKham, ...data }
     }))
+    clearFieldErrors(buildPaths("dangKyKham", data))
   }
 
   const updateTiepNhanBenhNhan = (data: Partial<TiepNhanFormData['tiepNhanBenhNhan']>) => {
@@ -149,6 +171,7 @@ export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
       ...prev,
       tiepNhanBenhNhan: { ...prev.tiepNhanBenhNhan, ...data }
     }))
+    clearFieldErrors(buildPaths("tiepNhanBenhNhan", data))
   }
 
   const updateTheBaoHiem = (data: Partial<TiepNhanFormData['theBaoHiem']>) => {
@@ -156,10 +179,12 @@ export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
       ...prev,
       theBaoHiem: { ...prev.theBaoHiem, ...data }
     }))
+    clearFieldErrors(buildPaths("theBaoHiem", data))
   }
 
   const resetForm = () => {
     setFormData(defaultFormData)
+    setFieldErrors({})
   }
 
   const getApiRequest = (): TiepNhanRequest => {
@@ -228,6 +253,12 @@ export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const validateAll = (context?: ValidateContext): ValidationResult => {
+    const result = validateTiepNhanForm(formData, context)
+    setFieldErrors(result.errors)
+    return result
+  }
+
   return (
     <TiepNhanFormContext.Provider
       value={{
@@ -237,6 +268,10 @@ export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
         updateTheBaoHiem,
         resetForm,
         getApiRequest,
+        fieldErrors,
+        setFieldErrors,
+        clearFieldErrors,
+        validateAll,
       }}
     >
       {children}
