@@ -1,42 +1,87 @@
-import { useState } from "react";
-import { User, Phone, Building2, IdCard } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Input } from "@/shared/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
-import { SectionTitle } from "@/shared/ui/sectiontitle";
-import { Label } from "@/shared/ui/label";
+import { useCallback, type ReactNode } from "react"
+import { Phone } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Input } from "@/shared/ui/input"
+import { SectionTitle } from "@/shared/ui/sectiontitle"
+import { Label } from "@/shared/ui/label"
+import { useTiepNhanForm } from "../hooks/useTiepNhanForm"
+import { getFieldError } from "../model/tiepnhan.validation"
+import { useSelector } from "react-redux"
+import { selectHanhChinhStatus, selectOptionsByKey } from "@/features/hanhchinh/model/hanhchinhSlice"
+import {
+  selectAddressSearchIndex,
+  searchAddressOptions,
+  type AddressOption,
+} from "@/features/hanhchinh/model/selectors"
+import { LookupField, type LookupOption } from "@/shared/ui/lookups"
+
+const relationshipOptions: LookupOption[] = [
+  { value: "cha-me", label: "Cha/Mẹ" },
+  { value: "vo-chong", label: "Vợ/Chồng" },
+  { value: "con", label: "Con" },
+  { value: "khac", label: "Khác" },
+]
+
+function toLookupOptions(items: Array<{ id: string; ma?: string; ten?: string }> = []) {
+  return items
+    .filter(Boolean)
+    .map((item) => ({
+      value: item.ma || item.id,
+      label: item.ten || item.ma || item.id,
+      ma: item.ma,
+    }))
+}
 
 export function TiepNhanBenhNhan() {
-  const [formData, setFormData] = useState({
-    phoneNumber: "",
-    fullName: "",
-    dateOfBirth: "",
-    birthTime: "00:00",
-    age: "",
-    gender: "",
-    occupation: "",
-    ethnicity: "Kinh",
-    nationality: "Việt Nam",
-    houseNumber: "",
-    ward: "",
-    tempHouseNumber: "",
-    tempWard: "",
-    idType: "CCCD",
-    idNumber: "",
-    issueDate: "",
-    issuePlace: "",
-    contactPhoneNumber: "",
-    contactFullName: "",
-    relationship: "",
-    guardian: "",
-    workplace: "",
-    schoolName: "",
-    className: "",
-    studentCode: "",
-  });
+  const { formData, updateTiepNhanBenhNhan, fieldErrors } = useTiepNhanForm()
+  const benhNhanData = formData.tiepNhanBenhNhan
+  const genderOptions = useSelector(selectOptionsByKey("GioiTinh"))
+  const occupationOptions = useSelector(selectOptionsByKey("NgheNghiep"))
+  const nationalityOptions = useSelector(selectOptionsByKey("QuocTich"))
+  const ethnicityOptions = useSelector(selectOptionsByKey("DanToc"))
+  const addressIndex = useSelector(selectAddressSearchIndex)
+  const handleAddressSearch = useCallback(
+    async (query: string) => {
+      const matches = searchAddressOptions(addressIndex, query)
+      return matches.map((match) => ({
+        value: match.value,
+        label: match.label,
+        meta: match,
+      }))
+    },
+    [addressIndex],
+  )
+  const handleAddressSelect = useCallback(
+    (option: LookupOption) => {
+      const meta = option.meta as AddressOption | undefined
+      updateTiepNhanBenhNhan({
+        tinhThanh: meta?.tinhId || meta?.tinhName || "",
+        quanHuyen: meta?.huyenId || meta?.huyenName || "",
+        phuongXa: meta?.xaId || option.value,
+        ward: option.label,
+      })
+    },
+    [updateTiepNhanBenhNhan],
+  )
+  const hanhchinhStatus = useSelector(selectHanhChinhStatus)
+  const lookupsLoading = hanhchinhStatus === "loading"
+  const genderItems = genderOptions
+    .map((option) => {
+      const rawValue = option.ma ?? option.Ma ?? option.id ?? option.Id
+      const rawLabel = option.ten ?? option.Ten
+      if (rawValue == null || rawLabel == null) return null
+      return {
+        value: String(rawValue),
+        label: String(rawLabel),
+      }
+    })
+    .filter((item): item is { value: string; label: string } => Boolean(item && item.value && item.label))
+  const occupationLookupOptions = toLookupOptions(occupationOptions)
+  const nationalityLookupOptions = toLookupOptions(nationalityOptions)
+  const ethnicityLookupOptions = toLookupOptions(ethnicityOptions)
 
   return (
-    <Card className="border border-gray-300 shadow-sm">
+    <Card className="border border-gray-200 shadow-sm">
       {/* HEADER */}
       <CardHeader className="bg-blue-700 text-white px-4 py-3">
         <div className="flex items-center justify-between">
@@ -52,243 +97,271 @@ export function TiepNhanBenhNhan() {
 
       {/* BODY */}
       <CardContent className="p-4 space-y-6">
-        <div className="grid grid-cols-4 gap-3">
-         
-
-          {/* Họ và tên */}
-          <div className="col-span-2">
-            <Field label="Họ và tên" required>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+          <div className="md:col-span-6">
+            <Field
+              label="Họ và tên"
+              required
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.fullName")}
+              fieldPath="tiepNhanBenhNhan.fullName"
+            >
               <Input
-                value={formData.fullName}
+                value={benhNhanData.fullName}
                 onChange={(e) =>
-                  setFormData({ ...formData, fullName: e.target.value })
+                  updateTiepNhanBenhNhan({ fullName: e.target.value })
                 }
                 placeholder="Nhập họ và tên"
+                className="h-9 text-sm"
               />
             </Field>
           </div>
 
-
-          <Field label="Giới tính" required>
-            <Select
-              value={formData.gender}
-              onValueChange={(value) =>
-                setFormData({ ...formData, gender: value })
-              }
+          <div className="md:col-span-3">
+            <Field
+              label="Giới tính"
+              required
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.gender")}
+              fieldPath="tiepNhanBenhNhan.gender"
             >
-              <SelectTrigger className="h-8 text-xs bg-white">
-                <SelectValue placeholder="Chọn" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Nam">Nam</SelectItem>
-                <SelectItem value="Nữ">Nữ</SelectItem>
-                <SelectItem value="Khác">Khác</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          {/* Ngày sinh */}
+              {genderItems.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {genderItems.map((item) => {
+                    const checked = benhNhanData.gender === item.value
+                    return (
+                      <label
+                        key={item.value}
+                        className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                          checked
+                            ? "border-blue-600 bg-blue-50 text-blue-700"
+                            : "border-gray-200 bg-white text-gray-600 hover:border-blue-300"
+                        } ${lookupsLoading ? "pointer-events-none opacity-60" : ""}`}
+                      >
+                        <input
+                          type="radio"
+                          className="sr-only"
+                          name="gender"
+                          value={item.value}
+                          checked={checked}
+                          disabled={lookupsLoading}
+                          onChange={() =>
+                            updateTiepNhanBenhNhan({ gender: item.value })
+                          }
+                        />
+                        {item.label}
+                      </label>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500">
+                  {lookupsLoading ? "Đang tải..." : "Chưa có dữ liệu"}
+                </p>
+              )}
+            </Field>
+          </div>
 
+          <div className="md:col-span-3">
+            <Field
+              label="Ngày sinh"
+              required
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.dateOfBirth")}
+              fieldPath="tiepNhanBenhNhan.dateOfBirth"
+            >
+              <Input
+                type="date"
+                value={benhNhanData.dateOfBirth}
+                onChange={(e) =>
+                  updateTiepNhanBenhNhan({ dateOfBirth: e.target.value })
+                }
+                className="h-9 text-sm"
+              />
+            </Field>
+          </div>
 
-          {/* Giờ sinh + Tuổi + Giới tính */}
-          <Field label="Ngày sinh" required>
-            <Input
-              type="date"
-              value={formData.dateOfBirth}
-              onChange={(e) =>
-                setFormData({ ...formData, dateOfBirth: e.target.value })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-
-          
-          {/* Địa chỉ thường trú */}
-          <div className="col-span-2">
+          <div className="md:col-span-6">
             <Field label="Số nhà / Thôn / Xóm">
               <Input
-                value={formData.houseNumber}
+                value={benhNhanData.houseNumber}
                 onChange={(e) =>
-                  setFormData({ ...formData, houseNumber: e.target.value })
+                  updateTiepNhanBenhNhan({ houseNumber: e.target.value })
                 }
-                className="h-8 text-xs"
+                className="h-9 text-sm"
                 placeholder="VD: 12/3 KP3"
               />
             </Field>
           </div>
 
-          <div className="col-span-2">
-            <Field label="Phường/Xã, Tỉnh/TP">
+          <div className="md:col-span-6">
+            <LookupField
+              label="Địa chỉ hành chính"
+              value={benhNhanData.phuongXa}
+              valueLabel={benhNhanData.ward}
+              onChange={(value) => updateTiepNhanBenhNhan({ phuongXa: value })}
+              onSelectOption={handleAddressSelect}
+              options={[]}
+              onSearch={handleAddressSearch}
+              loading={lookupsLoading}
+              placeholder="Nhập Phường/Xã, Quận/Huyện, Tỉnh/TP"
+              emptyText="Nhập để tìm địa chỉ"
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.phuongXa")}
+              showAllOnEmpty
+              emptyResultLimit={50}
+            />
+          </div>
+
+          <div className="md:col-span-4">
+            <Field label="Số điện thoại">
               <Input
-                value={formData.tempWard}
+                value={benhNhanData.phoneNumber}
                 onChange={(e) =>
-                  setFormData({ ...formData, tempWard: e.target.value })
+                  updateTiepNhanBenhNhan({ phoneNumber: e.target.value })
                 }
-                className="h-8 text-xs"
+                placeholder="Nhập số điện thoại"
+                className="h-9 text-sm"
               />
             </Field>
           </div>
-          
 
- {/* Số điện thoại */}
-          <Field label="Số điện thoại">
-            <Input
-              value={formData.phoneNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, phoneNumber: e.target.value })
-              }
-              placeholder="Nhập số điện thoại"
-            />
-          </Field>
+          <div className="md:col-span-4">
+            <Field
+              label="CCCD/Hộ chiếu"
+              required
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.idNumber")}
+              fieldPath="tiepNhanBenhNhan.idNumber"
+            >
+              <Input
+                value={benhNhanData.idNumber}
+                onChange={(e) =>
+                  updateTiepNhanBenhNhan({ idNumber: e.target.value })
+                }
+                className="h-9 text-sm"
+              />
+            </Field>
+          </div>
 
-          {/* Giấy tờ tùy thân */}
-          <Field label="CCCD/Hộ chiếu" required>
-            <Input
-              value={formData.idNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, idNumber: e.target.value })
-              }
-            />
-          </Field>
+          <div className="md:col-span-2">
+            <Field label="Ngày cấp">
+              <Input
+                type="date"
+                value={benhNhanData.issueDate}
+                onChange={(e) =>
+                  updateTiepNhanBenhNhan({ issueDate: e.target.value })
+                }
+                className="h-9 text-sm"
+              />
+            </Field>
+          </div>
 
-          <Field label="Ngày cấp">
-            <Input
-              type="date"
-              value={formData.issueDate}
-              onChange={(e) =>
-                setFormData({ ...formData, issueDate: e.target.value })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
-          
+          <div className="md:col-span-2">
             <Field label="Nơi cấp">
               <Input
-                value={formData.issuePlace}
+                value={benhNhanData.issuePlace}
                 onChange={(e) =>
-                  setFormData({ ...formData, issuePlace: e.target.value })
+                  updateTiepNhanBenhNhan({ issuePlace: e.target.value })
                 }
-                className="h-8 text-xs"
+                className="h-9 text-sm"
                 placeholder="VD: TP.HCM"
               />
             </Field>
-          
-          {/* Nghề nghiệp */}
-          <div className="col-span-2">
-          <Field label="Nghề nghiệp" required>
-            <Select
-              value={formData.occupation}
-              onValueChange={(value) =>
-                setFormData({ ...formData, occupation: value })
-              }
-            >
-              <SelectTrigger className="h-8 text-xs bg-white">
-                <SelectValue placeholder="Chọn nghề nghiệp" />
-              </SelectTrigger>
-              <SelectContent>  
-                <SelectItem value="00000">Không nghề nghiệp</SelectItem>
-                <SelectItem value="NVVP">Nhân viên văn phòng</SelectItem>
-                <SelectItem value="HS">Học sinh</SelectItem>
-                <SelectItem value="SV">Sinh viên</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
           </div>
-{/* Dân tộc */}
-          <Field label="Quốc tịch" required>
-            <Select
-              value={formData.ethnicity}
-              onValueChange={(value) =>
-                setFormData({ ...formData, ethnicity: value })
-              }
-            >
-              <SelectTrigger className="h-8 text-xs bg-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Kinh">Kinh</SelectItem>
-                <SelectItem value="Tày">Tày</SelectItem>
-                <SelectItem value="Hoa">Hoa</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
 
-          {/* Dân tộc */}
-          <Field label="Dân tộc" required>
-            <Select
-              value={formData.ethnicity}
-              onValueChange={(value) =>
-                setFormData({ ...formData, ethnicity: value })
-              }
-            >
-              <SelectTrigger className="h-8 text-xs bg-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Kinh">Kinh</SelectItem>
-                <SelectItem value="Tày">Tày</SelectItem>
-                <SelectItem value="Hoa">Hoa</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
+          <div className="md:col-span-6">
+            <LookupField
+              label="Nghề nghiệp"
+              required
+              value={benhNhanData.occupation}
+              onChange={(value) => updateTiepNhanBenhNhan({ occupation: value })}
+              options={occupationLookupOptions}
+              loading={lookupsLoading}
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.occupation")}
+              placeholder="Nhập mã hoặc tên nghề nghiệp..."
+            />
+          </div>
 
+          <div className="md:col-span-3">
+            <LookupField
+              label="Quốc tịch"
+              required
+              value={benhNhanData.nationalityCode}
+              onChange={(value) => {
+                const option = nationalityLookupOptions.find((item) => item.value === value)
+                updateTiepNhanBenhNhan({
+                  nationalityCode: value,
+                  nationality: option?.label || "",
+                })
+              }}
+              options={nationalityLookupOptions}
+              loading={lookupsLoading}
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.nationality")}
+              placeholder="Nhập mã hoặc tên quốc tịch"
+            />
+          </div>
+
+          <div className="md:col-span-3">
+            <LookupField
+              label="Dân tộc"
+              required
+              value={benhNhanData.ethnicityCode}
+              onChange={(value) => {
+                const option = ethnicityLookupOptions.find((item) => item.value === value)
+                updateTiepNhanBenhNhan({
+                  ethnicityCode: value,
+                  ethnicity: option?.label || "",
+                })
+              }}
+              options={ethnicityLookupOptions}
+              loading={lookupsLoading}
+              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.ethnicity")}
+              placeholder="Nhập mã hoặc tên dân tộc"
+            />
+          </div>
         </div>
 
         {/* 2. THÔNG TIN LIÊN HỆ & NGƯỜI THÂN */}
-        <SectionTitle
-          label="Thông tin liên hệ & người thân"
-          icon={Phone}
-        />
+        <SectionTitle label="Thông tin liên hệ & người thân" icon={Phone} />
 
-        <div className="grid grid-cols-6 gap-3">
-           <Field label="Quan hệ với NB">
-            <Select
-              value={formData.relationship}
-              onValueChange={(value) =>
-                setFormData({ ...formData, relationship: value })
-              }
-            >
-              <SelectTrigger className="h-8 text-xs bg-white">
-                <SelectValue placeholder="Chọn" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cha-me">Cha/Mẹ</SelectItem>
-                <SelectItem value="vo-chong">Vợ/Chồng</SelectItem>
-                <SelectItem value="con">Con</SelectItem>
-                <SelectItem value="khac">Khác</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-
-          <Field label="Tên người liên hệ">
-            <Input
-              value={formData.contactFullName}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  contactFullName: e.target.value,
-                })
-              }
-              className="h-8 text-xs"
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+          <div className="md:col-span-4">
+            <LookupField
+              label="Quan hệ với NB"
+              value={benhNhanData.relationship}
+              onChange={(value) => updateTiepNhanBenhNhan({ relationship: value })}
+              options={relationshipOptions}
+              placeholder="Chọn"
             />
-          </Field>
+          </div>
 
-          <Field label="SĐT người liên hệ">
-            <Input
-              value={formData.contactPhoneNumber}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  contactPhoneNumber: e.target.value,
-                })
-              }
-              className="h-8 text-xs"
-            />
-          </Field>
+          <div className="md:col-span-4">
+            <Field label="Tên người liên hệ">
+              <Input
+                value={benhNhanData.contactFullName}
+                onChange={(e) =>
+                  updateTiepNhanBenhNhan({
+                    contactFullName: e.target.value,
+                  })
+                }
+                className="h-9 text-sm"
+              />
+            </Field>
+          </div>
 
+          <div className="md:col-span-4">
+            <Field label="SĐT người liên hệ">
+              <Input
+                value={benhNhanData.contactPhoneNumber}
+                onChange={(e) =>
+                  updateTiepNhanBenhNhan({
+                    contactPhoneNumber: e.target.value,
+                  })
+                }
+                className="h-9 text-sm"
+              />
+            </Field>
+          </div>
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
 
 /* ============================== */
@@ -298,26 +371,28 @@ function Field({
   label,
   children,
   required,
+  error,
+  fieldPath,
 }: {
-  label: string;
-  children: React.ReactNode;
-  required?: boolean;
+  label: string
+  children: ReactNode
+  required?: boolean
+  error?: string
+  fieldPath?: string
 }) {
   // Tách sao nếu label có *
-  const hasStar = label.includes("*");
-  const cleanLabel = hasStar ? label.replace("*", "").trim() : label;
+  const hasStar = label.includes("*")
+  const cleanLabel = hasStar ? label.replace("*", "").trim() : label
 
   return (
-    <div className="space-y-1">
-      <Label className="text-[13px] sm:text-sm md:text-base text-gray-700 flex items-center gap-1">
+    <div className="space-y-1.5" data-field-path={fieldPath}>
+      <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
         {cleanLabel}
-        {(required || hasStar) && (
-          <span className="text-red-600">*</span>
-        )}
+        {(required || hasStar) && <span className="text-red-600">*</span>}
       </Label>
 
       {children}
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
-  );
+  )
 }
-

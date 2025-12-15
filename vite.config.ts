@@ -20,4 +20,13 @@ export default defineConfig({
       '@/app': path.resolve(__dirname, './src/app'),
     },
   },
+  server: {
+    proxy: {
+      '/json-file': {
+        target: 'http://113.161.127.213:2082',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

@@ -24,10 +24,10 @@ export function SectionTitle({
       )}
     >
       {/* Dot marker */}
-      <span className={cn("w-1.5 h-1.5 rounded-full", dotColor)} />
+      {/* <span className={cn("w-1.5 h-1.5 rounded-full", dotColor)} /> */}
 
       {/* Icon */}
-      <Icon className={cn("w-3.5 h-3.5", iconColor)} />
+      <Icon className={cn("w-4.5 h-4.5", iconColor)} />
 
       {/* Label */}
       <span className="text-lg font-semibold text-gray-700 tracking-wide">

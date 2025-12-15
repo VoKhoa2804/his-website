@@ -6,6 +6,19 @@
 // UI Components
 export { ClinicListPage } from './ui/ClinicListPage'
 export { ClinicRegisterPage } from './ui/ClinicRegisterPage'
+export { IcdSelectDialog } from './ui/IcdSelectDialog'
+export { IcdSelectDialog as IcdSelectDialogRedux } from './ui/IcdSelectDialog.redux'
+
+// Types
+export type { IcdDialogResult, IcdRow, IcdCategory } from './ui/IcdSelectDialog'
+export type { 
+  IcdDialogResult as IcdDialogResultRedux,
+  IcdRow as IcdRowRedux,
+  IcdCategory as IcdCategoryRedux 
+} from './ui/IcdSelectDialog.redux'
+
+// Legacy alias for backward compatibility
+export type { IcdRow as IcdItem } from './ui/IcdSelectDialog'
 
 // Section Components
 export { AdministrativeInfoSection } from './ui/sections/AdministrativeInfoSection'

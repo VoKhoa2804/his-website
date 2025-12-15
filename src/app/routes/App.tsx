@@ -11,15 +11,25 @@ import { HangHoaPage } from '@/features/hanghoa/HangHoaPage'
 import { TiepNhanPage } from '@/features/tiepnhan/TiepNhanPage'
 import { ClinicListPage } from '@/features/clinic'
 import { MainLayout } from '@/layouts/MainLayout'
+import { loadHanhChinh, selectHanhChinhStatus } from '@/features/hanhchinh/model/hanhchinhSlice'
+import { useRef } from 'react'
 
 function App() {
   const dispatch = useAppDispatch()
   const { isAuthenticated, loading } = useAppSelector((state) => state.auth)
+  const hanhChinhLoadedRef = useRef(false)
 
   // Check for existing auth session on mount
   useEffect(() => {
     dispatch(checkAuthThunk())
   }, [dispatch])
+
+  useEffect(() => {
+    if (isAuthenticated && !hanhChinhLoadedRef.current) {
+      hanhChinhLoadedRef.current = true
+      dispatch(loadHanhChinh({}))
+    }
+  }, [dispatch, isAuthenticated])
 
   const handleLoginSuccess = () => {
     // Auth state is already updated by Redux, no need for manual state management
