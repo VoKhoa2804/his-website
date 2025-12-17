@@ -129,3 +129,43 @@ export function searchAddressOptions(
 
   return [...startsWith, ...contains].slice(0, limit)
 }
+
+type RawPhongBanItem = {
+  Id?: string
+  Ma?: string
+  Ten?: string
+  TenBHYT?: string
+  MaBHYT?: string
+  NoiLamViec?: string
+  Khoa?: string
+  HienThi?: boolean
+}
+
+const selectPhongBanRaw = (state: RootState): RawPhongBanItem[] =>
+  (state.hanhchinh.data?.PhongBan as RawPhongBanItem[] | undefined) ?? []
+
+export interface PhongKhamRow {
+  id: string
+  ma?: string
+  ten: string
+  phongBanTen?: string
+}
+
+export const selectPhongKhamRows = createSelector([selectPhongBanRaw], (rows) =>
+  rows
+    .filter((item) => item && item.HienThi !== false)
+    .map<PhongKhamRow>((item) => {
+      const id = String(item.Id ?? item.Ma ?? item.MaBHYT ?? item.Ten ?? "")
+      const ma = item.MaBHYT || item.Ma
+      const ten = item.TenBHYT || item.Ten || ""
+      const phongBanTen = item.NoiLamViec || item.Khoa || item.Ten || undefined
+      return {
+        id,
+        ma: ma ? String(ma) : undefined,
+        ten: ten.trim(),
+        phongBanTen: phongBanTen ? String(phongBanTen).trim() : undefined,
+      }
+    })
+    .filter((row) => row.id && row.ten)
+    .sort((a, b) => a.ten.localeCompare(b.ten, "vi")),
+)

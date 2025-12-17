@@ -18,6 +18,8 @@ export interface TiepNhanFormData {
     uuTien: string
     priorityLevel: string
     referrer: string
+    phongKhamIds: string[]
+    phongKhamNames: string[]
   }
   
   // From TiepNhanBenhNhan
@@ -83,73 +85,81 @@ interface TiepNhanFormContextType {
   validateAll: (context?: ValidateContext) => ValidationResult
 }
 
-const defaultFormData: TiepNhanFormData = {
-  dangKyKham: {
-    receptionCode: "",
-    patientCode: "",
-    emrCode: "",
-    visitReason: "",
-    visitType: "",
-    patientType: "thu-phi",
-    department: "",
-    room: "",
-    uuTien: "",
-    priorityLevel: "",
-    referrer: "",
-  },
-  tiepNhanBenhNhan: {
-    phoneNumber: "",
-    fullName: "",
-    dateOfBirth: "",
-    age: "",
-    gender: "",
-    occupation: "",
-    ethnicity: "Kinh",
-    ethnicityCode: "01",
-    nationality: "Việt Nam",
-    nationalityCode: "000",
-    houseNumber: "",
-    ward: "",
-    tinhThanh: "",
-    quanHuyen: "",
-    phuongXa: "",
-    idType: "CCCD",
-    idNumber: "",
-    issueDate: "",
-    issuePlace: "",
-    contactPhoneNumber: "",
-    contactFullName: "",
-    relationship: "",
-  },
-  theBaoHiem: {
-    insuranceNumber: "",
-    benefitLevel: "",
-    insuranceFrom: "",
-    insuranceTo: "",
-    registrationPlace: "",
-    referralPlace: "",
-    transferNumber: "",
-    icdDiagnosis: "",
-    diagnosisText: "",
-    poorHousehold: false,
-    poorHouseholdNumber: "",
-    hasAppointment: false,
-    appointmentDate: "",
-    appointmentTime: "",
-    addressOnCard: "",
-    maKV: "",
-    ngayDu5Nam: "",
-    ngayMienCCT: "",
-    tenNoiChuyenTuyen: "",
-  }
-}
+const createDefaultDangKyKham = (): TiepNhanFormData["dangKyKham"] => ({
+  receptionCode: "",
+  patientCode: "",
+  emrCode: "",
+  visitReason: "",
+  visitType: "",
+  patientType: "thu-phi",
+  department: "",
+  room: "",
+  uuTien: "",
+  priorityLevel: "",
+  referrer: "",
+  phongKhamIds: [],
+  phongKhamNames: [],
+})
+
+const createDefaultTiepNhanBenhNhan = (): TiepNhanFormData["tiepNhanBenhNhan"] => ({
+  phoneNumber: "",
+  fullName: "",
+  dateOfBirth: "",
+  age: "",
+  gender: "",
+  occupation: "",
+  ethnicity: "Kinh",
+  ethnicityCode: "01",
+  nationality: "Việt Nam",
+  nationalityCode: "000",
+  houseNumber: "",
+  ward: "",
+  tinhThanh: "",
+  quanHuyen: "",
+  phuongXa: "",
+  idType: "CCCD",
+  idNumber: "",
+  issueDate: "",
+  issuePlace: "",
+  contactPhoneNumber: "",
+  contactFullName: "",
+  relationship: "",
+})
+
+export const createDefaultTheBaoHiem = (): TiepNhanFormData["theBaoHiem"] => ({
+  insuranceNumber: "",
+  benefitLevel: "",
+  insuranceFrom: "",
+  insuranceTo: "",
+  registrationPlace: "",
+  referralPlace: "",
+  transferNumber: "",
+  icdDiagnosis: "",
+  diagnosisText: "",
+  poorHousehold: false,
+  poorHouseholdNumber: "",
+  hasAppointment: false,
+  appointmentDate: "",
+  appointmentTime: "",
+  addressOnCard: "",
+  maKV: "",
+  ngayDu5Nam: "",
+  ngayMienCCT: "",
+  tenNoiChuyenTuyen: "",
+})
+
+const createDefaultFormData = (): TiepNhanFormData => ({
+  dangKyKham: createDefaultDangKyKham(),
+  tiepNhanBenhNhan: createDefaultTiepNhanBenhNhan(),
+  theBaoHiem: createDefaultTheBaoHiem(),
+})
 
 const TiepNhanFormContext = createContext<TiepNhanFormContextType | undefined>(undefined)
 
 export { TiepNhanFormContext }
 
 export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
-  const [formData, setFormData] = useState<TiepNhanFormData>(defaultFormData)
+  const [formData, setFormData] = useState<TiepNhanFormData>(() => createDefaultFormData())
   const [fieldErrors, setFieldErrors] = useState<FieldErrorMap>({})
 
   const clearFieldErrors = (paths: string[]) => {
@@ -191,7 +201,7 @@ export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
   }
 
   const resetForm = () => {
-    setFormData(defaultFormData)
+    setFormData(createDefaultFormData())
     setFieldErrors({})
   }
 

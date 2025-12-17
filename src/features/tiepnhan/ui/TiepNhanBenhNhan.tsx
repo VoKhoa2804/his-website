@@ -1,5 +1,5 @@
 import { useCallback, type ReactNode } from "react"
-import { Phone } from "lucide-react"
+import { Camera, Phone, CreditCard } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Input } from "@/shared/ui/input"
 import { SectionTitle } from "@/shared/ui/sectiontitle"
@@ -14,12 +14,20 @@ import {
   type AddressOption,
 } from "@/features/hanhchinh/model/selectors"
 import { LookupField, type LookupOption } from "@/shared/ui/lookups"
+import { Button } from "@/shared/ui/button"
+import type { PaymentType } from "../model/bhytTypes"
 
 const relationshipOptions: LookupOption[] = [
   { value: "cha-me", label: "Cha/Mẹ" },
   { value: "vo-chong", label: "Vợ/Chồng" },
   { value: "con", label: "Con" },
   { value: "khac", label: "Khác" },
+]
+
+const PAYMENT_OPTIONS: Array<{ value: PaymentType; label: string; description: string }> = [
+  { value: "BHYT", label: "BHYT", description: "Thanh toán qua BHYT" },
+  { value: "THU_PHI", label: "Thu phí", description: "Khách tự chi trả" },
+  { value: "MIEN_PHI_KHAC", label: "Miễn phí/Khác", description: "Quỹ khác" },
 ]
 
 function toLookupOptions(items: Array<{ id: string; ma?: string; ten?: string }> = []) {
@@ -32,7 +40,13 @@ function toLookupOptions(items: Array<{ id: string; ma?: string; ten?: string }>
     }))
 }
 
-export function TiepNhanBenhNhan() {
+interface TiepNhanBenhNhanProps {
+  paymentType: PaymentType
+  onPaymentChange: (value: PaymentType) => void
+  hasBhytData: boolean
+}
+
+export function TiepNhanBenhNhan({ paymentType, onPaymentChange, hasBhytData }: TiepNhanBenhNhanProps) {
   const { formData, updateTiepNhanBenhNhan, fieldErrors } = useTiepNhanForm()
   const benhNhanData = formData.tiepNhanBenhNhan
   const genderOptions = useSelector(selectOptionsByKey("GioiTinh"))
@@ -97,88 +111,116 @@ export function TiepNhanBenhNhan() {
 
       {/* BODY */}
       <CardContent className="p-4 space-y-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:grid-rows-2 items-stretch">
+          {/* ICON / AVATAR BÊN TRÁI (cao bằng bên phải) */}
+          <div className="hidden md:flex md:col-span-2 md:row-span-2 h-full items-stretch">
+            <div className="mx-auto flex h-full w-full flex-col items-center justify-center gap-3 rounded-2xl bg-white p-4 shadow-sm shadow-sky-100">
+              <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gray-200 sm:h-28 sm:w-28">
+                <div className="h-10 w-10 rounded-full bg-gray-300 sm:h-12 sm:w-12" />
+
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="default"
+                  className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-blue-600 hover:bg-blue-700"
+                  onClick={() => {
+                    console.log("Upload avatar")
+                  }}
+                >
+                  <Camera className="h-3 w-3 text-white" />
+                </Button>
+              </div>
+
+              {/* <p className="max-w-[140px] text-center text-xs text-gray-500">
+        Nhấn để cập nhật ảnh bệnh nhân
+      </p> */}
+            </div>
+          </div>
+
+          {/* CONTENT BÊN PHẢI (span 2 dòng) */}
+          <div className="md:col-span-10 md:row-span-2 h-full">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+
+              {/* Họ và tên */}
+              <div className="md:col-span-6">
+                <Field
+                  label="Họ và tên"
+                  required
+                  error={getFieldError(fieldErrors, "tiepNhanBenhNhan.fullName")}
+                  fieldPath="tiepNhanBenhNhan.fullName"
+                >
+                  <Input
+                    value={benhNhanData.fullName}
+                    onChange={(e) =>
+                      updateTiepNhanBenhNhan({ fullName: e.target.value })
+                    }
+                    placeholder="Nhập họ và tên"
+                    className="h-9 text-sm"
+                  />
+                </Field>
+              </div>
+
+              {/* Giới tính */}
+              <div className="md:col-span-3">
+                <Field
+                  label="Giới tính"
+                  required
+                  error={getFieldError(fieldErrors, "tiepNhanBenhNhan.gender")}
+                  fieldPath="tiepNhanBenhNhan.gender"
+                >
+                  <div className="flex flex-wrap gap-2">
+                    {genderItems.map((item) => {
+                      const checked = benhNhanData.gender === item.value
+                      return (
+                        <label
+                          key={item.value}
+                          className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${checked
+                              ? "border-blue-600 bg-blue-50 text-blue-700"
+                              : "border-gray-200 bg-white text-gray-600 hover:border-blue-300"
+                            }`}
+                        >
+                          <input
+                            type="radio"
+                            className="sr-only"
+                            name="gender"
+                            value={item.value}
+                            checked={checked}
+                            onChange={() =>
+                              updateTiepNhanBenhNhan({ gender: item.value })
+                            }
+                          />
+                          {item.label}
+                        </label>
+                      )
+                    })}
+                  </div>
+                </Field>
+              </div>
+
+              {/* Ngày sinh */}
+              <div className="md:col-span-3">
+                <Field
+                  label="Ngày sinh"
+                  required
+                  error={getFieldError(fieldErrors, "tiepNhanBenhNhan.dateOfBirth")}
+                  fieldPath="tiepNhanBenhNhan.dateOfBirth"
+                >
+                  <Input
+                    type="date"
+                    value={benhNhanData.dateOfBirth}
+                    onChange={(e) =>
+                      updateTiepNhanBenhNhan({ dateOfBirth: e.target.value })
+                    }
+                    className="h-9 text-sm"
+                  />
+                </Field>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-          <div className="md:col-span-6">
-            <Field
-              label="Họ và tên"
-              required
-              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.fullName")}
-              fieldPath="tiepNhanBenhNhan.fullName"
-            >
-              <Input
-                value={benhNhanData.fullName}
-                onChange={(e) =>
-                  updateTiepNhanBenhNhan({ fullName: e.target.value })
-                }
-                placeholder="Nhập họ và tên"
-                className="h-9 text-sm"
-              />
-            </Field>
-          </div>
-
-          <div className="md:col-span-3">
-            <Field
-              label="Giới tính"
-              required
-              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.gender")}
-              fieldPath="tiepNhanBenhNhan.gender"
-            >
-              {genderItems.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {genderItems.map((item) => {
-                    const checked = benhNhanData.gender === item.value
-                    return (
-                      <label
-                        key={item.value}
-                        className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                          checked
-                            ? "border-blue-600 bg-blue-50 text-blue-700"
-                            : "border-gray-200 bg-white text-gray-600 hover:border-blue-300"
-                        } ${lookupsLoading ? "pointer-events-none opacity-60" : ""}`}
-                      >
-                        <input
-                          type="radio"
-                          className="sr-only"
-                          name="gender"
-                          value={item.value}
-                          checked={checked}
-                          disabled={lookupsLoading}
-                          onChange={() =>
-                            updateTiepNhanBenhNhan({ gender: item.value })
-                          }
-                        />
-                        {item.label}
-                      </label>
-                    )
-                  })}
-                </div>
-              ) : (
-                <p className="text-xs text-gray-500">
-                  {lookupsLoading ? "Đang tải..." : "Chưa có dữ liệu"}
-                </p>
-              )}
-            </Field>
-          </div>
-
-          <div className="md:col-span-3">
-            <Field
-              label="Ngày sinh"
-              required
-              error={getFieldError(fieldErrors, "tiepNhanBenhNhan.dateOfBirth")}
-              fieldPath="tiepNhanBenhNhan.dateOfBirth"
-            >
-              <Input
-                type="date"
-                value={benhNhanData.dateOfBirth}
-                onChange={(e) =>
-                  updateTiepNhanBenhNhan({ dateOfBirth: e.target.value })
-                }
-                className="h-9 text-sm"
-              />
-            </Field>
-          </div>
-
-          <div className="md:col-span-6">
+                    <div className="md:col-span-6">
             <Field label="Số nhà / Thôn / Xóm">
               <Input
                 value={benhNhanData.houseNumber}
@@ -209,7 +251,7 @@ export function TiepNhanBenhNhan() {
             />
           </div>
 
-          <div className="md:col-span-4">
+          <div className="md:col-span-3">
             <Field label="Số điện thoại">
               <Input
                 value={benhNhanData.phoneNumber}
@@ -222,7 +264,7 @@ export function TiepNhanBenhNhan() {
             </Field>
           </div>
 
-          <div className="md:col-span-4">
+          <div className="md:col-span-3">
             <Field
               label="CCCD/Hộ chiếu"
               required
@@ -252,7 +294,7 @@ export function TiepNhanBenhNhan() {
             </Field>
           </div>
 
-          <div className="md:col-span-2">
+          <div className="md:col-span-4">
             <Field label="Nơi cấp">
               <Input
                 value={benhNhanData.issuePlace}
@@ -357,6 +399,46 @@ export function TiepNhanBenhNhan() {
                 className="h-9 text-sm"
               />
             </Field>
+          </div>
+        </div>
+
+        <SectionTitle label="Đối tượng thanh toán" icon={CreditCard} />
+
+        <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <p className="text-sm font-semibold text-slate-700">Chọn hình thức thanh toán</p>
+              <p className="text-xs text-slate-500">
+                Chọn BHYT để nhập thông tin thẻ tại khu vực tiếp đón.
+              </p>
+            </div>
+            {paymentType === "BHYT" && (
+              <span className={`text-xs font-semibold ${hasBhytData ? "text-emerald-600" : "text-amber-600"}`}>
+                {hasBhytData ? "Đang sử dụng BHYT" : "Chưa có dữ liệu BHYT"}
+              </span>
+            )}
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            {PAYMENT_OPTIONS.map((option) => {
+              const isActive = paymentType === option.value
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => onPaymentChange(option.value)}
+                  className={`flex h-full w-full flex-col items-start gap-1 rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition-all ${
+                    isActive ? "border-sky-600 bg-sky-600 text-white shadow-lg" : "border-gray-200 bg-white text-gray-700 hover:border-sky-200"
+                  }`}
+                  aria-pressed={isActive}
+                >
+                  <span>{option.label}</span>
+                  <span className={`text-xs font-normal ${isActive ? "text-white/80" : "text-gray-500"}`}>
+                    {option.description}
+                  </span>
+                </button>
+              )
+            })}
           </div>
         </div>
       </CardContent>
