@@ -177,6 +177,25 @@ export function DangKyKham() {
             </div>
           </div>
         </div>
+        {/* <div className="grid grid-cols-4 gap-3">
+          <Field label="Loại ưu tiên">
+              <Select
+                value={dangKyData.room}
+                onValueChange={(value) =>
+                  updateDangKyKham({ room: value })
+                }
+              >
+                <SelectTrigger className="h-8 text-xs bg-white">
+                  <SelectValue placeholder="Chọn buồng khám" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pk-01">PK 01</SelectItem>
+                  <SelectItem value="pk-02">PK 02</SelectItem>
+                  <SelectItem value="pk-03">PK 03</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+        </div> */}
       </CardContent>
     </Card>
   );
