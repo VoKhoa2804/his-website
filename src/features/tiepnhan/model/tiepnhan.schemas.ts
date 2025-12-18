@@ -41,8 +41,6 @@ export const dangKyKhamSchema = z.object({
   uuTien: z.string().optional(),
   priorityLevel: z.string().optional(),
   referrer: z.string().optional(),
-  phongKhamIds: z.array(z.string()).optional(),
-  phongKhamNames: z.array(z.string()).optional(),
 })
 
 export const tiepNhanBenhNhanSchema = z.object({

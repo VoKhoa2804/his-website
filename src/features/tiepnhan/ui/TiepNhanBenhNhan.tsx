@@ -1,5 +1,5 @@
 import { useCallback, type ReactNode } from "react"
-import { Camera, Phone, CreditCard } from "lucide-react"
+import { Camera, Phone, QrCode, User } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Input } from "@/shared/ui/input"
 import { SectionTitle } from "@/shared/ui/sectiontitle"
@@ -15,19 +15,12 @@ import {
 } from "@/features/hanhchinh/model/selectors"
 import { LookupField, type LookupOption } from "@/shared/ui/lookups"
 import { Button } from "@/shared/ui/button"
-import type { PaymentType } from "../model/bhytTypes"
 
 const relationshipOptions: LookupOption[] = [
   { value: "cha-me", label: "Cha/Mẹ" },
   { value: "vo-chong", label: "Vợ/Chồng" },
   { value: "con", label: "Con" },
   { value: "khac", label: "Khác" },
-]
-
-const PAYMENT_OPTIONS: Array<{ value: PaymentType; label: string; description: string }> = [
-  { value: "BHYT", label: "BHYT", description: "Thanh toán qua BHYT" },
-  { value: "THU_PHI", label: "Thu phí", description: "Khách tự chi trả" },
-  { value: "MIEN_PHI_KHAC", label: "Miễn phí/Khác", description: "Quỹ khác" },
 ]
 
 function toLookupOptions(items: Array<{ id: string; ma?: string; ten?: string }> = []) {
@@ -40,13 +33,7 @@ function toLookupOptions(items: Array<{ id: string; ma?: string; ten?: string }>
     }))
 }
 
-interface TiepNhanBenhNhanProps {
-  paymentType: PaymentType
-  onPaymentChange: (value: PaymentType) => void
-  hasBhytData: boolean
-}
-
-export function TiepNhanBenhNhan({ paymentType, onPaymentChange, hasBhytData }: TiepNhanBenhNhanProps) {
+export function TiepNhanBenhNhan() {
   const { formData, updateTiepNhanBenhNhan, fieldErrors } = useTiepNhanForm()
   const benhNhanData = formData.tiepNhanBenhNhan
   const genderOptions = useSelector(selectOptionsByKey("GioiTinh"))
@@ -141,8 +128,41 @@ export function TiepNhanBenhNhan({ paymentType, onPaymentChange, hasBhytData }: 
           <div className="md:col-span-10 md:row-span-2 h-full">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
 
-              {/* Họ và tên */}
               <div className="md:col-span-6">
+                <Field label="QR code tiếp đón">
+                  <div className="relative">
+                    <Input
+                      //value={dangKyData.receptionCode}
+                      // onChange={(e) =>
+                      //   updateDangKyKham({ receptionCode: e.target.value })
+                      // }
+                      placeholder="Quét QR hoặc nhập tay"
+                      className="h-9 pr-10 text-sm"
+                    />
+                    <QrCode className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground cursor-pointer" />
+                  </div>
+                </Field>
+              </div>
+              {/* Mã hồ sơ */}
+              <div className="md:col-span-6">
+                <Field
+                  label="Mã HS"
+                  required
+                  error={getFieldError(fieldErrors, "tiepNhanBenhNhan.fullName")}
+                  fieldPath="tiepNhanBenhNhan.fullName"
+                >
+                  <Input
+                    value={benhNhanData.fullName}
+                    onChange={(e) =>
+                      updateTiepNhanBenhNhan({ fullName: e.target.value })
+                    }
+                    placeholder="Mã hồ sơ"
+                    className="h-9 text-sm"
+                  />
+                </Field>
+              </div>
+              {/* Họ và tên */}
+              <div className="md:col-span-5">
                 <Field
                   label="Họ và tên"
                   required
@@ -162,39 +182,13 @@ export function TiepNhanBenhNhan({ paymentType, onPaymentChange, hasBhytData }: 
 
               {/* Giới tính */}
               <div className="md:col-span-3">
-                <Field
-                  label="Giới tính"
-                  required
-                  error={getFieldError(fieldErrors, "tiepNhanBenhNhan.gender")}
-                  fieldPath="tiepNhanBenhNhan.gender"
-                >
-                  <div className="flex flex-wrap gap-2">
-                    {genderItems.map((item) => {
-                      const checked = benhNhanData.gender === item.value
-                      return (
-                        <label
-                          key={item.value}
-                          className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${checked
-                              ? "border-blue-600 bg-blue-50 text-blue-700"
-                              : "border-gray-200 bg-white text-gray-600 hover:border-blue-300"
-                            }`}
-                        >
-                          <input
-                            type="radio"
-                            className="sr-only"
-                            name="gender"
-                            value={item.value}
-                            checked={checked}
-                            onChange={() =>
-                              updateTiepNhanBenhNhan({ gender: item.value })
-                            }
-                          />
-                          {item.label}
-                        </label>
-                      )
-                    })}
-                  </div>
-                </Field>
+                <LookupField
+              label="Giới tính"
+              value={benhNhanData.relationship}
+              onChange={(value) => updateTiepNhanBenhNhan({ relationship: value })}
+              options={relationshipOptions}
+              placeholder="Chọn"
+            />
               </div>
 
               {/* Ngày sinh */}
@@ -399,46 +393,6 @@ export function TiepNhanBenhNhan({ paymentType, onPaymentChange, hasBhytData }: 
                 className="h-9 text-sm"
               />
             </Field>
-          </div>
-        </div>
-
-        <SectionTitle label="Đối tượng thanh toán" icon={CreditCard} />
-
-        <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <p className="text-sm font-semibold text-slate-700">Chọn hình thức thanh toán</p>
-              <p className="text-xs text-slate-500">
-                Chọn BHYT để nhập thông tin thẻ tại khu vực tiếp đón.
-              </p>
-            </div>
-            {paymentType === "BHYT" && (
-              <span className={`text-xs font-semibold ${hasBhytData ? "text-emerald-600" : "text-amber-600"}`}>
-                {hasBhytData ? "Đang sử dụng BHYT" : "Chưa có dữ liệu BHYT"}
-              </span>
-            )}
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-3">
-            {PAYMENT_OPTIONS.map((option) => {
-              const isActive = paymentType === option.value
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => onPaymentChange(option.value)}
-                  className={`flex h-full w-full flex-col items-start gap-1 rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition-all ${
-                    isActive ? "border-sky-600 bg-sky-600 text-white shadow-lg" : "border-gray-200 bg-white text-gray-700 hover:border-sky-200"
-                  }`}
-                  aria-pressed={isActive}
-                >
-                  <span>{option.label}</span>
-                  <span className={`text-xs font-normal ${isActive ? "text-white/80" : "text-gray-500"}`}>
-                    {option.description}
-                  </span>
-                </button>
-              )
-            })}
           </div>
         </div>
       </CardContent>
