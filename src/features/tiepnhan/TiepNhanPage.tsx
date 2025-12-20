@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "@/shared/ui/button"
 import { DangKyKham } from "./ui/DangKyKham"
 import { TiepNhanBenhNhan } from "./ui/TiepNhanBenhNhan"
@@ -6,21 +6,105 @@ import { tiepNhanApi } from "./api/tiepNhanApi"
 import { toast } from "sonner"
 import { TiepNhanFormProvider } from "./context/TiepNhanFormContext"
 import { useTiepNhanForm } from "./hooks/useTiepNhanForm"
-import type { BhytInfo, PaymentType } from "./model/bhytTypes"
+import type { BhytInfo, BhytStatus, PaymentType } from "./model/bhytTypes"
+import type { TiepNhanFormData } from "./context/TiepNhanFormContext"
 import { PaymentTypeSegment } from "./ui/PaymentTypeSegment"
 import { BhytSheet } from "./ui/BhytSheet"
 import { BhytSummaryCard } from "./ui/BhytSummaryCard"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/shared/ui/dialog"
 import type { FieldErrorMap } from "./model/tiepnhan.validation"
 
+const isoToDisplayDate = (value?: string) => {
+  if (!value) return ""
+  const [year, month, day] = value.split("-")
+  if (!year || !month || !day) return ""
+  return `${day}/${month}/${year}`
+}
+
+const displayToIsoDate = (value?: string) => {
+  if (!value) return ""
+  const parts = value.split("/")
+  if (parts.length !== 3) return ""
+  const [day, month, year] = parts
+  if (!day || !month || !year) return ""
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`
+}
+
+const mapBhytInfoToFormData = (info: BhytInfo): Partial<TiepNhanFormData["theBaoHiem"]> => ({
+  insuranceNumber: info.maThe || "",
+  benefitLevel: info.mucHuong || "",
+  insuranceFrom: displayToIsoDate(info.tuNgay) || "",
+  insuranceTo: displayToIsoDate(info.denNgay) || "",
+  ngayDu5Nam: displayToIsoDate(info.ngayDu5Nam) || "",
+  ngayMienCCT: displayToIsoDate(info.ngayMienCct) || "",
+  registrationPlace: info.noiDangKyKcb || "",
+  addressOnCard: info.diaChiThe || "",
+  maKV: info.maKV || "",
+  soGiayChuyenTuyen: info.soGiayChuyenTuyen || "",
+  chanDoan: info.chanDoan || "",
+  maIcdChanDoan: info.maIcdChanDoan || "",
+})
+
+const mapFormDataToBhytInfo = (
+  formBhyt: TiepNhanFormData["theBaoHiem"],
+  status: BhytStatus = "UNKNOWN",
+  statusMessage = "Chưa kiểm tra",
+): BhytInfo => ({
+  maThe: formBhyt.insuranceNumber,
+  mucHuong: formBhyt.benefitLevel,
+  maKV: formBhyt.maKV,
+  diaChiThe: formBhyt.addressOnCard,
+  tuNgay: isoToDisplayDate(formBhyt.insuranceFrom),
+  denNgay: isoToDisplayDate(formBhyt.insuranceTo),
+  ngayDu5Nam: isoToDisplayDate(formBhyt.ngayDu5Nam),
+  ngayMienCct: isoToDisplayDate(formBhyt.ngayMienCCT),
+  noiDangKyKcb: formBhyt.registrationPlace,
+  soGiayChuyenTuyen: formBhyt.soGiayChuyenTuyen,
+  maIcdChanDoan: formBhyt.maIcdChanDoan,
+  chanDoan: formBhyt.chanDoan,
+  status,
+  statusMessage,
+})
+
+const clearBhytFormData = (): Partial<TiepNhanFormData["theBaoHiem"]> => ({
+  insuranceNumber: "",
+  benefitLevel: "",
+  insuranceFrom: "",
+  insuranceTo: "",
+  registrationPlace: "",
+  referralPlace: "",
+  transferNumber: "",
+  icdDiagnosis: "",
+  diagnosisText: "",
+  poorHousehold: false,
+  poorHouseholdNumber: "",
+  hasAppointment: false,
+  appointmentDate: "",
+  appointmentTime: "",
+  addressOnCard: "",
+  maKV: "",
+  ngayDu5Nam: "",
+  ngayMienCCT: "",
+  tenNoiChuyenTuyen: "",
+  soGiayChuyenTuyen: "",
+  chanDoan: "",
+  maIcdChanDoan: "",
+})
+
 function TiepNhanPageContent() {
   const [isLoading, setIsLoading] = useState(false)
-  const { getApiRequest, resetForm, validateAll } = useTiepNhanForm()
+  const { getApiRequest, resetForm, validateAll, updateTheBaoHiem, formData } = useTiepNhanForm()
   const [paymentType, setPaymentType] = useState<PaymentType>("THU_PHI")
   const [bhytSheetOpen, setBhytSheetOpen] = useState(false)
-  const [bhytInfo, setBhytInfo] = useState<BhytInfo | null>(null)
+  const [bhytStatus, setBhytStatus] = useState<{ status: BhytStatus; statusMessage?: string } | null>(null)
   const [pendingPaymentType, setPendingPaymentType] = useState<PaymentType | null>(null)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const bhytInfo = useMemo(() => {
+    const status = bhytStatus?.status ?? "UNKNOWN"
+    const statusMessage = bhytStatus?.statusMessage ?? "Chưa kiểm tra"
+    return mapFormDataToBhytInfo(formData.theBaoHiem, status, statusMessage)
+  }, [formData.theBaoHiem, bhytStatus])
+  const hasBhytData = Boolean(formData.theBaoHiem.insuranceNumber)
 
   const focusFirstInvalidField = (errors: FieldErrorMap) => {
     const firstPath = Object.keys(errors)[0]
@@ -44,30 +128,17 @@ function TiepNhanPageContent() {
     setIsLoading(true)
 
     try {
-      // Collect data from form context and transform to API request
       const requestData = getApiRequest()
-
-      console.log("Submitting data:", requestData)
-
       const result = await tiepNhanApi.createTiepNhan(requestData)
 
       if (result.is_succeeded && result.code === 200) {
         toast.success(result.message || "Lưu thông tin thành công!")
-
-        // Log response data for debugging
-        if (result.data) {
-          console.log("Registration successful:", {
-            id: result.data.id,
-            tiep_nhan_id: result.data.tiep_nhan_id,
-            benh_nhan_id: result.data.benh_nhan_id,
-            ho_ten: result.data.ho_ten,
-          })
-        }
       } else {
         toast.error(result.message || "Lưu thông tin thất bại!")
       }
     } catch (error) {
-      toast.error("Có lỗi xảy ra khi lưu thông tin!")
+      const message = error instanceof Error ? error.message : "Có lỗi xảy ra khi lưu thông tin!"
+      toast.error(message)
       console.error("Save error:", error)
     } finally {
       setIsLoading(false)
@@ -87,7 +158,7 @@ function TiepNhanPageContent() {
       return
     }
 
-    if (bhytInfo) {
+    if (hasBhytData) {
       setPendingPaymentType(nextType)
       setConfirmDialogOpen(true)
       return
@@ -97,7 +168,8 @@ function TiepNhanPageContent() {
   }
 
   const handleSaveBhytInfo = (info: BhytInfo) => {
-    setBhytInfo(info)
+    updateTheBaoHiem(mapBhytInfoToFormData(info))
+    setBhytStatus({ status: info.status, statusMessage: info.statusMessage })
     setPaymentType("BHYT")
     setBhytSheetOpen(false)
   }
@@ -107,7 +179,8 @@ function TiepNhanPageContent() {
   }
 
   const handleDeleteBhyt = () => {
-    setBhytInfo(null)
+    updateTheBaoHiem(clearBhytFormData())
+    setBhytStatus(null)
     setPaymentType("THU_PHI")
   }
 
@@ -125,7 +198,8 @@ function TiepNhanPageContent() {
     } else {
       setPaymentType("THU_PHI")
     }
-    setBhytInfo(null)
+    updateTheBaoHiem(clearBhytFormData())
+    setBhytStatus(null)
     setPendingPaymentType(null)
     setConfirmDialogOpen(false)
   }
@@ -139,7 +213,6 @@ function TiepNhanPageContent() {
               <div className="grid gap-6 lg:grid-cols-10">
                 <div className="space-y-6 lg:col-span-6">
                   <TiepNhanBenhNhan />
-              
 
                   <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
                     <div className="flex items-center justify-between gap-2 pb-3">
@@ -147,12 +220,12 @@ function TiepNhanPageContent() {
                         <p className="text-sm font-semibold text-slate-700">Đối tượng thanh toán</p>
                         <p className="text-xs text-slate-500">Chọn hình thức phù hợp. Chọn BHYT để nhập thông tin thẻ.</p>
                       </div>
-                      {bhytInfo && (
+                      {hasBhytData && (
                         <span className="text-xs text-slate-500">Đang sử dụng thẻ BHYT</span>
                       )}
                     </div>
                     <PaymentTypeSegment value={paymentType} onChange={handlePaymentChange} />
-                    {bhytInfo && (
+                    {hasBhytData && (
                       <div className="mt-4">
                         <BhytSummaryCard
                           data={bhytInfo}
@@ -165,11 +238,10 @@ function TiepNhanPageContent() {
                 </div>
 
                 <div className="space-y-6 lg:col-span-4">
-                      <DangKyKham />
+                  <DangKyKham />
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="mt-2 flex justify-end gap-3">
                 <Button
                   variant="outline"
@@ -195,7 +267,7 @@ function TiepNhanPageContent() {
 
       <BhytSheet
         open={bhytSheetOpen}
-        initialValue={bhytInfo}
+        initialValue={hasBhytData ? bhytInfo : null}
         onOpenChange={setBhytSheetOpen}
         onSave={handleSaveBhytInfo}
       />

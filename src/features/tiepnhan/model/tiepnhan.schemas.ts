@@ -88,6 +88,9 @@ export const theBaoHiemSchema = z.object({
   ngayDu5Nam: optionalIsoDateField,
   ngayMienCCT: optionalIsoDateField,
   tenNoiChuyenTuyen: z.string().optional(),
+  soGiayChuyenTuyen: z.string().optional(),
+  chanDoan: z.string().optional(),
+  maIcdChanDoan: z.string().optional(),
 })
 
 export const tiepNhanFormSchema = z.object({

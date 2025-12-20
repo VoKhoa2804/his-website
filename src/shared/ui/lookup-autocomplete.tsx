@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, type 
 import ReactDOM from 'react-dom'
 import { cn } from '@/shared/utils/cn'
 import { ChevronDown, Loader2 } from 'lucide-react'
+import { Input, type ValidationState } from '@/shared/ui/input'
 
 type DisplayColumn = {
   headerName?: string
@@ -61,6 +62,11 @@ export interface LookupAutocompleteProps {
   initialName?: string
   showAllOnEmpty?: boolean
   emptyResultLimit?: number
+  validationState?: ValidationState
+  showStatusIcon?: boolean
+  statusIconMode?: "auto" | "always"
+  statusIconAriaLabel?: string
+  disabled?: boolean
 }
 
 // ===== Utility Functions =====
@@ -227,6 +233,11 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
     initialName,
     showAllOnEmpty = false,
     emptyResultLimit = 50,
+    validationState = "default",
+    showStatusIcon = false,
+    statusIconMode = "auto",
+    statusIconAriaLabel,
+    disabled = false,
   } = props
 
   const [inputValue, setInputValue] = useState<string>(initialName || '')
@@ -369,6 +380,7 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
   }, [doFetchData, minChars, delay, showAllOnEmpty, emptyResultLimit])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (disabled) return
     const v = e.target.value
     setInputValue(v)
     if (showAllOnEmpty && v.trim().length === 0) {
@@ -395,7 +407,7 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!open) return
+    if (!open || disabled) return
 
     if (e.key === 'ArrowDown') {
       e.preventDefault()
@@ -415,6 +427,7 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
   }
 
   const handleFocus = () => {
+    if (disabled) return
     const trimmed = (inputValue || '').trim()
     if (trimmed.length === 0) {
       if (showAllOnEmpty) {
@@ -430,6 +443,7 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
   }
 
   const handleToggleClick = (e: React.MouseEvent) => {
+    if (disabled) return
     e.preventDefault()
     if (open) {
       setOpen(false)
@@ -537,12 +551,12 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
   return (
     <div ref={wrapperRef} className={cn('relative w-full', className)}>
       <div className="relative">
-        <input
+        <Input
           ref={inputRef}
           type="text"
           className={cn(
-            'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-            toggleButton && 'pr-10',
+            "h-10",
+            showStatusIcon ? "pr-20" : "pr-12",
             inputClassName
           )}
           autoComplete="off"
@@ -551,6 +565,12 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
+          validationState={validationState}
+          showStatusIcon={showStatusIcon}
+          statusIconMode={statusIconMode}
+          statusIconAriaLabel={statusIconAriaLabel}
+          statusIconOffset={toggleButton ? 16 : 0}
+          disabled={disabled}
         />
         {toggleButton && (
           <button
@@ -558,6 +578,7 @@ export const LookupAutocomplete: React.FC<LookupAutocompleteProps> = (props) => 
             className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             onClick={handleToggleClick}
             tabIndex={-1}
+            disabled={disabled}
           >
             <ChevronDown className="h-4 w-4" />
           </button>

@@ -1,9 +1,19 @@
-import { useCallback, type ReactNode } from "react"
-import { Camera, Phone, QrCode, User } from "lucide-react"
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  isValidElement,
+  cloneElement,
+  type ChangeEvent,
+  type FocusEvent,
+} from "react"
+import { Camera, Phone, QrCode } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Input } from "@/shared/ui/input"
 import { SectionTitle } from "@/shared/ui/sectiontitle"
-import { Label } from "@/shared/ui/label"
+import { ValidatedField } from "@/shared/ui/validated-field"
 import { useTiepNhanForm } from "../hooks/useTiepNhanForm"
 import { getFieldError } from "../model/tiepnhan.validation"
 import { useSelector } from "react-redux"
@@ -34,8 +44,9 @@ function toLookupOptions(items: Array<{ id: string; ma?: string; ten?: string }>
 }
 
 export function TiepNhanBenhNhan() {
-  const { formData, updateTiepNhanBenhNhan, fieldErrors } = useTiepNhanForm()
+  const { formData, updateDangKyKham, updateTiepNhanBenhNhan, fieldErrors } = useTiepNhanForm()
   const benhNhanData = formData.tiepNhanBenhNhan
+  const dangKyData = formData.dangKyKham
   const genderOptions = useSelector(selectOptionsByKey("GioiTinh"))
   const occupationOptions = useSelector(selectOptionsByKey("NgheNghiep"))
   const nationalityOptions = useSelector(selectOptionsByKey("QuocTich"))
@@ -147,16 +158,14 @@ export function TiepNhanBenhNhan() {
               <div className="md:col-span-6">
                 <Field
                   label="Mã HS"
-                  required
-                  error={getFieldError(fieldErrors, "tiepNhanBenhNhan.fullName")}
-                  fieldPath="tiepNhanBenhNhan.fullName"
+                  fieldPath="dangKyKham.emrCode"
                 >
                   <Input
-                    value={benhNhanData.fullName}
+                    value={dangKyData.emrCode ?? ""}
                     onChange={(e) =>
-                      updateTiepNhanBenhNhan({ fullName: e.target.value })
+                      updateDangKyKham({ emrCode: e.target.value })
                     }
-                    placeholder="Mã hồ sơ"
+                    placeholder="Nhập mã hồ sơ"
                     className="h-9 text-sm"
                   />
                 </Field>
@@ -183,12 +192,15 @@ export function TiepNhanBenhNhan() {
               {/* Giới tính */}
               <div className="md:col-span-3">
                 <LookupField
-              label="Giới tính"
-              value={benhNhanData.relationship}
-              onChange={(value) => updateTiepNhanBenhNhan({ relationship: value })}
-              options={relationshipOptions}
-              placeholder="Chọn"
-            />
+                  label="Giới tính"
+                  required
+                  value={benhNhanData.gender}
+                  onChange={(value) => updateTiepNhanBenhNhan({ gender: value })}
+                  options={genderItems}
+                  placeholder="Chọn"
+                  error={getFieldError(fieldErrors, "tiepNhanBenhNhan.gender")}
+                  fieldPath="tiepNhanBenhNhan.gender"
+                />
               </div>
 
               {/* Ngày sinh */}
@@ -403,32 +415,75 @@ export function TiepNhanBenhNhan() {
 /* ============================== */
 /* COMPONENT TÁI SỬ DỤNG          */
 /* ============================== */
-function Field({
-  label,
-  children,
-  required,
-  error,
-  fieldPath,
-}: {
+interface FieldProps {
   label: string
   children: ReactNode
   required?: boolean
   error?: string
   fieldPath?: string
-}) {
-  // Tách sao nếu label có *
-  const hasStar = label.includes("*")
-  const cleanLabel = hasStar ? label.replace("*", "").trim() : label
+}
+
+function Field({ label, children, required, error, fieldPath }: FieldProps) {
+  const childElement = isValidElement(children) ? children : null
+  if (!childElement) {
+    return null
+  }
+
+  const supportsValidationProps = childElement.type === Input
+  const childValue = childElement.props?.value ?? ""
+  const [touched, setTouched] = useState(false)
+  const [dirty, setDirty] = useState(false)
+  const valueRef = useRef(childValue)
+  const valuePresent =
+    typeof childValue === "string"
+      ? childValue.trim().length > 0
+      : childValue !== null && childValue !== undefined && childValue !== ""
+
+  const handleBlur = (event: FocusEvent<HTMLInputElement>) => {
+    if (!touched) {
+      setTouched(true)
+    }
+    childElement?.props.onBlur?.(event)
+  }
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (!dirty && valueRef.current !== event.target.value) {
+      setDirty(true)
+    }
+    valueRef.current = event.target.value
+    childElement?.props.onChange?.(event)
+  }
+
+  useEffect(() => {
+    valueRef.current = childValue
+  }, [childValue])
+
+  if (!childElement) {
+    return null
+  }
 
   return (
-    <div className="space-y-1.5" data-field-path={fieldPath}>
-      <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-        {cleanLabel}
-        {(required || hasStar) && <span className="text-red-600">*</span>}
-      </Label>
-
-      {children}
-      {error && <p className="text-xs text-red-600">{error}</p>}
-    </div>
+    <ValidatedField
+      label={label}
+      required={required}
+      error={error}
+      touched={touched}
+      dirty={dirty}
+      valuePresent={valuePresent}
+      fieldPath={fieldPath}
+    >
+      {({ validationState, showStatusIcon, statusIconAriaLabel }) => {
+        if (!supportsValidationProps) {
+          return childElement
+        }
+        return cloneElement(childElement, {
+          validationState,
+          showStatusIcon,
+          statusIconAriaLabel,
+          onBlur: handleBlur,
+          onChange: handleChange,
+        })
+      }}
+    </ValidatedField>
   )
 }

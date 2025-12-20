@@ -1,5 +1,15 @@
-import type { ReactNode } from "react";
-import { Camera, Hospital, QrCode, User } from "lucide-react";
+import {
+  useMemo,
+  useRef,
+  useState,
+  useEffect,
+  type ReactNode,
+  isValidElement,
+  cloneElement,
+  type ChangeEvent,
+  type FocusEvent,
+} from "react";
+import { Hospital, User } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -8,15 +18,18 @@ import {
   CardTitle,
 } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
-import { Button } from "@/shared/ui/button";
-import { Label } from "@/shared/ui/label";
 import { useTiepNhanForm } from "../hooks/useTiepNhanForm";
 import { getFieldError } from "../model/tiepnhan.validation";
-import { LookupField, type LookupOption } from "@/shared/ui/lookups";
+import {
+  LookupField,
+  LookupAutoCompleteGrid,
+  type LookupAutoCompleteGridColumn,
+} from "@/shared/ui/lookups";
 import { useSelector } from "react-redux";
 import { selectHanhChinhStatus, selectOptionsByKey } from "@/features/hanhchinh/model/hanhchinhSlice";
 import { SectionTitle } from "@/shared/ui/sectiontitle";
 import { Checkbox } from "@/shared/ui/checkbox";
+import { ValidatedField } from "@/shared/ui/validated-field";
 
 function toLookupOptions(items: Array<{ id: string; ma?: string; ten?: string }> = []) {
   return items
@@ -25,12 +38,29 @@ function toLookupOptions(items: Array<{ id: string; ma?: string; ten?: string }>
       value: item.ma || item.id,
       label: item.ten || item.ma || item.id,
       ma: item.ma,
+      meta: item,
     }))
 }
 
+const currencyFormatter = new Intl.NumberFormat("vi-VN", {
+  maximumFractionDigits: 0,
+})
+
+function formatCurrency(value?: number | string | null) {
+  if (value === undefined || value === null || value === "") {
+    return "-"
+  }
+  const numericValue = typeof value === "number" ? value : Number(value)
+  if (!Number.isFinite(numericValue)) {
+    return "-"
+  }
+  return currencyFormatter.format(numericValue)
+}
+
 export function DangKyKham() {
-  const { formData, updateDangKyKham, fieldErrors } = useTiepNhanForm()
+  const { formData, updateDangKyKham, updateTheBaoHiem, fieldErrors } = useTiepNhanForm()
   const dangKyData = formData.dangKyKham
+  const theBaoHiemData = formData.theBaoHiem
   const hanhChinhStatus = useSelector(selectHanhChinhStatus)
   const loading = hanhChinhStatus === "loading"
   const phongBanOptions = useSelector(selectOptionsByKey("PhongBan"))
@@ -44,6 +74,37 @@ export function DangKyKham() {
   const phongBanLookupOptions = toLookupOptions(phongBanOptions)
   const uuTienLookupOptions = toLookupOptions(uuTienOptions)
   const bsGioiThieuLookupOptions = toLookupOptions(bsGioiThieuOptions)
+  const phongBanColumns = useMemo<LookupAutoCompleteGridColumn[]>(
+    () => [
+      {
+        header: "Mã phòng",
+        accessor: (option) => option.ma ?? option.value,
+        width: 20,
+        searchValue: (option) => option.ma ?? option.value,
+      },
+      {
+        header: "Tên phòng",
+        accessor: (option) => option.label,
+        width: 35,
+        searchValue: (option) => option.label,
+      },
+      {
+        header: "Loại thu",
+        accessor: (option) => option.meta?.TenLoaiThu ?? "-",
+        width: 25,
+        searchValue: (option) => option.meta?.TenLoaiThu ?? "",
+      },
+      {
+        header: "Đơn giá BHYT",
+        accessor: (option) =>
+          formatCurrency(option.meta?.DonGiaBHYT ?? option.meta?.DonGia ?? option.meta?.DonGiaDV),
+        width: 20,
+        searchValue: (option) =>
+          String(option.meta?.DonGiaBHYT ?? option.meta?.DonGia ?? option.meta?.DonGiaDV ?? ""),
+      },
+    ],
+    [],
+  )
 
   return (
     <Card className="border border-sky-100 bg-sky-50/50 shadow-sm ring-1 ring-sky-200">
@@ -63,23 +124,6 @@ export function DangKyKham() {
       {/* BODY */}
       <CardContent className="p-5 space-y-6">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-          {/* <div className="mx-auto flex flex-col items-center gap-3 rounded-2xl bg-white p-4 shadow-sm shadow-sky-100">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gray-200 flex items-center justify-center relative">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-300" />
-              <Button
-                type="button"
-                size="icon"
-                variant="default"
-                className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-blue-600 hover:bg-blue-700"
-              >
-                <Camera className="w-3 h-3" />
-              </Button>
-            </div>
-            <p className="text-xs text-gray-500 text-center max-w-[140px]">
-              Nhấn để cập nhật ảnh bệnh nhân
-            </p>
-          </div> */}
-
           <div className="flex-1 grid grid-cols-1 gap-4 md:grid-cols-12">
 
             <div className="md:col-span-6">
@@ -151,21 +195,30 @@ export function DangKyKham() {
             <div className="md:col-span-8">
               <LookupField
                 label="Tên nơi chuyển tuyến (nếu có)"
-                required
-                value={dangKyData.department}
-                onChange={(value) => updateDangKyKham({ department: value })}
+                value={theBaoHiemData.referralPlace}
+                valueLabel={theBaoHiemData.tenNoiChuyenTuyen}
+                onChange={(value) =>
+                  updateTheBaoHiem({
+                    referralPlace: value,
+                  })
+                }
+                onSelectOption={(option) =>
+                  updateTheBaoHiem({
+                    referralPlace: option.value,
+                    tenNoiChuyenTuyen: option.label,
+                  })
+                }
                 options={doiTuongKcbLookupOptions}
                 loading={loading}
-                error={getFieldError(fieldErrors, "dangKyKham.department")}
               />
             </div>
             <div className="md:col-span-4">
               <Field label="Giấy chuyển tuyến">
                 <Input
-                  //  value={baoHiemData.referralPlace}
-                  //  onChange={(e) =>
-                  //    updateTheBaoHiem({ referralPlace: e.target.value })
-                  //  }
+                  value={theBaoHiemData.soGiayChuyenTuyen}
+                  onChange={(e) =>
+                    updateTheBaoHiem({ soGiayChuyenTuyen: e.target.value })
+                  }
                   className="h-9 min-w-0 text-sm"
                   placeholder="Nhập số giấy"
                 />
@@ -175,10 +228,10 @@ export function DangKyKham() {
             <div className="md:col-span-8">
               <Field label="Chẩn đoán">
                 <Input
-                  // value={baoHiemData.icdDiagnosis}
-                  // onChange={(e) =>
-                  //   updateTheBaoHiem({ icdDiagnosis: e.target.value })
-                  // }
+                  value={theBaoHiemData.chanDoan}
+                  onChange={(e) =>
+                    updateTheBaoHiem({ chanDoan: e.target.value })
+                  }
                   className="h-9 min-w-0 text-sm"
                   placeholder="Nhập mô tả chẩn đoán"
                 />
@@ -187,10 +240,10 @@ export function DangKyKham() {
             <div className="md:col-span-4">
               <Field label="Mã ICD chẩn đoán">
                 <Input
-                  // value={baoHiemData.transferNumber}
-                  // onChange={(e) =>
-                  //   updateTheBaoHiem({ transferNumber: e.target.value })
-                  // }
+                  value={theBaoHiemData.maIcdChanDoan}
+                  onChange={(e) =>
+                    updateTheBaoHiem({ maIcdChanDoan: e.target.value })
+                  }
                   className="h-9 min-w-0 text-sm"
                   placeholder="VD: J18.9"
                 />
@@ -229,15 +282,17 @@ export function DangKyKham() {
             </div>
 
             <div className="md:col-span-8">
-              <LookupField
+              <LookupAutoCompleteGrid
                 label="Phòng khám"
                 required
                 value={dangKyData.room}
                 onChange={(value) => updateDangKyKham({ room: value })}
                 options={phongBanLookupOptions}
+                columns={phongBanColumns}
                 loading={loading}
                 error={getFieldError(fieldErrors, "dangKyKham.room")}
                 placeholder="Chọn phòng"
+                fieldPath="dangKyKham.room"
               />
             </div>
 
@@ -267,36 +322,75 @@ export function DangKyKham() {
 /* ============================== */
 /* FIELD COMPONENT TÁI SỬ DỤNG    */
 /* ============================== */
-function Field({
-  label,
-  children,
-  required,
-  error,
-  fieldPath,
-}: {
+interface FieldProps {
   label: string;
   children: ReactNode;
   required?: boolean;
   error?: string;
   fieldPath?: string;
-}) {
-  // Tách sao nếu label có *
-  const hasStar = label.includes("*");
-  const cleanLabel = hasStar ? label.replace("*", "").trim() : label;
+}
+
+function Field({ label, children, required, error, fieldPath }: FieldProps) {
+  const childElement = isValidElement(children) ? children : null;
+  if (!childElement) {
+    return null;
+  }
+
+  const supportsValidationProps = childElement.type === Input;
+  const childValue = childElement.props?.value ?? "";
+  const [touched, setTouched] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const valueRef = useRef(childValue);
+  const valuePresent =
+    typeof childValue === "string"
+      ? childValue.trim().length > 0
+      : childValue !== null && childValue !== undefined && childValue !== "";
+
+  const handleBlur = (event: FocusEvent<HTMLInputElement>) => {
+    if (!touched) {
+      setTouched(true);
+    }
+    childElement?.props.onBlur?.(event);
+  };
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (!dirty && valueRef.current !== event.target.value) {
+      setDirty(true);
+    }
+    valueRef.current = event.target.value;
+    childElement?.props.onChange?.(event);
+  };
+
+  useEffect(() => {
+    valueRef.current = childValue;
+  }, [childValue]);
+
+  if (!childElement) {
+    return null;
+  }
 
   return (
-    <div className="space-y-1.5" data-field-path={fieldPath}>
-      <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-        {cleanLabel}
-        {(required || hasStar) && (
-          <span className="text-red-600">*</span>
-        )}
-      </Label>
-
-      {children}
-      {error && (
-        <p className="text-xs text-red-600">{error}</p>
-      )}
-    </div>
+    <ValidatedField
+      label={label}
+      required={required}
+      error={error}
+      touched={touched}
+      dirty={dirty}
+      valuePresent={valuePresent}
+      fieldPath={fieldPath}
+    >
+      {({ validationState, showStatusIcon, statusIconAriaLabel }) => {
+        if (!supportsValidationProps) {
+          return childElement;
+        }
+        return cloneElement(childElement, {
+          validationState,
+          showStatusIcon,
+          statusIconAriaLabel,
+          onBlur: handleBlur,
+          onChange: handleChange,
+        });
+      }}
+    </ValidatedField>
   );
 }

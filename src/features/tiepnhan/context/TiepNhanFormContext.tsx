@@ -67,7 +67,32 @@ export interface TiepNhanFormData {
     ngayDu5Nam: string
     ngayMienCCT: string
     tenNoiChuyenTuyen: string
+    soGiayChuyenTuyen: string
+    chanDoan: string
+    maIcdChanDoan: string
   }
+}
+
+const normalizeGenderToCode = (value: string | number | null | undefined): 0 | 1 => {
+  if (typeof value === "number") {
+    if (value === 1) return 1
+    return 0
+  }
+
+  const normalized = (value ?? "").trim().toLowerCase()
+  if (!normalized) return 0
+
+  if (["nam", "male", "m", "1"].includes(normalized)) return 1
+  if (["nữ", "nu", "female", "f", "0", "2"].includes(normalized)) return 0
+
+  const parsed = Number(normalized)
+  if (!Number.isNaN(parsed)) {
+    if (parsed === 1) return 1
+    if (parsed === 0) return 0
+    if (parsed === 2) return 0
+  }
+
+  return 0
 }
 
 interface TiepNhanFormContextType {
@@ -141,6 +166,9 @@ const defaultFormData: TiepNhanFormData = {
     ngayDu5Nam: "",
     ngayMienCCT: "",
     tenNoiChuyenTuyen: "",
+    soGiayChuyenTuyen: "",
+    chanDoan: "",
+    maIcdChanDoan: "",
   }
 }
 
@@ -197,67 +225,79 @@ export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
 
   const getApiRequest = (): TiepNhanRequest => {
     const { dangKyKham, tiepNhanBenhNhan, theBaoHiem } = formData
-    
-    // Split full name into ho_lot and ten
-    const nameParts = tiepNhanBenhNhan.fullName.trim().split(' ')
-    const ten = nameParts.length > 0 ? nameParts[nameParts.length - 1] : ''
-    const ho_lot = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : ''
+    const nameParts = tiepNhanBenhNhan.fullName.trim().split(" ")
+    const ten = nameParts.length > 0 ? nameParts[nameParts.length - 1] : ""
+    const ho_lot = nameParts.length > 1 ? nameParts.slice(0, -1).join(" ") : ""
+    const wardId = tiepNhanBenhNhan.phuongXa || tiepNhanBenhNhan.ward || undefined
+    const quanHuyenId = tiepNhanBenhNhan.quanHuyen || undefined
+    const tinhThanhId = tiepNhanBenhNhan.tinhThanh || undefined
+    const nowIso = new Date().toISOString()
+
+    const benhNhan: TiepNhanRequest["benh_nhan"] = {
+      ho_lot,
+      ten,
+      ho_ten: tiepNhanBenhNhan.fullName,
+      phai: normalizeGenderToCode(tiepNhanBenhNhan.gender),
+      ngay_sinh: tiepNhanBenhNhan.dateOfBirth || undefined,
+      dien_thoai: tiepNhanBenhNhan.phoneNumber || undefined,
+      so_nha: tiepNhanBenhNhan.houseNumber || undefined,
+      dia_chi: `${tiepNhanBenhNhan.houseNumber} ${tiepNhanBenhNhan.phuongXa || tiepNhanBenhNhan.ward}`.trim() || undefined,
+      phuong_xa_id: wardId,
+      quan_huyen_id: quanHuyenId,
+      tinh_thanh_id: tinhThanhId,
+      nghe_nghiep_id: tiepNhanBenhNhan.occupation || undefined,
+      dan_toc_id: tiepNhanBenhNhan.ethnicityCode || undefined,
+      quoc_tich_id: tiepNhanBenhNhan.nationalityCode || undefined,
+      cccd: tiepNhanBenhNhan.idNumber || undefined,
+      ngay_cap_cccd: tiepNhanBenhNhan.issueDate || undefined,
+      noi_cap_cccd: tiepNhanBenhNhan.issuePlace || undefined,
+      moi_quan_he_id: tiepNhanBenhNhan.relationship || undefined,
+      ho_ten_nguoi_than: tiepNhanBenhNhan.contactFullName || undefined,
+      dien_thoai_nguoi_than: tiepNhanBenhNhan.contactPhoneNumber || undefined,
+    }
+
+    const dangKy: TiepNhanRequest["dang_ky_kham"] = {
+      ma_ho_so: dangKyKham.receptionCode || undefined,
+      ma_benh_nhan: dangKyKham.patientCode || undefined,
+      ma_emr: dangKyKham.emrCode || undefined,
+      ly_do_kham: dangKyKham.visitReason,
+      ngay_kham: nowIso,
+      loai_kcb_id: dangKyKham.visitType,
+      doi_tuong_kcb_id: dangKyKham.department,
+      uu_tien_id: dangKyKham.uuTien || dangKyKham.priorityLevel || undefined,
+      bs_gioi_thieu_id: dangKyKham.referrer || undefined,
+      phong_kham_id: dangKyKham.room,
+      phong_kham: undefined,
+      chan_doan_so_bo: theBaoHiem.chanDoan || theBaoHiem.diagnosisText || undefined,
+      ghi_chu: theBaoHiem.icdDiagnosis || undefined,
+    }
+
+    const benefitPercentage = Number.parseInt(theBaoHiem.benefitLevel, 10)
+    const theBhyt: TiepNhanRequest["the_bhyt"] = {
+      ma_the: theBaoHiem.insuranceNumber,
+      ma_quyen_loi: theBaoHiem.benefitLevel || undefined,
+      muc_huong_bh: Number.isNaN(benefitPercentage) ? undefined : benefitPercentage,
+      ma_kv: theBaoHiem.maKV || undefined,
+      ma_dkbd: theBaoHiem.registrationPlace || undefined,
+      dia_chi_the: theBaoHiem.addressOnCard || undefined,
+      gt_the_tu: theBaoHiem.insuranceFrom || undefined,
+      gt_the_den: theBaoHiem.insuranceTo || undefined,
+      ngay_du5_nam: theBaoHiem.ngayDu5Nam || undefined,
+      ngay_mien_cct: theBaoHiem.ngayMienCCT || undefined,
+      noi_dang_ky: theBaoHiem.registrationPlace || undefined,
+      tuyen_truoc_id: theBaoHiem.referralPlace || undefined,
+      ten_tuyen_truoc: theBaoHiem.tenNoiChuyenTuyen || undefined,
+      so_phieu_tuyen_truoc: theBaoHiem.soGiayChuyenTuyen || theBaoHiem.transferNumber || undefined,
+      chan_doan_tuyen_truoc: theBaoHiem.chanDoan || undefined,
+      icd_tuyen_truoc: theBaoHiem.maIcdChanDoan || undefined,
+      chan_doan: theBaoHiem.diagnosisText || undefined,
+      ma_icd_chan_doan: theBaoHiem.maIcdChanDoan || undefined,
+    }
 
     return {
-      id: dangKyKham.emrCode || null,
-      benh_nhan: {
-        id: dangKyKham.patientCode,
-        ho_lot: ho_lot,
-        ten: ten,
-        ho_ten: tiepNhanBenhNhan.fullName,
-        phai: tiepNhanBenhNhan.gender === "Nam" ? 1 : 0,
-        ngay_sinh: tiepNhanBenhNhan.dateOfBirth || undefined,
-        dien_thoai: tiepNhanBenhNhan.phoneNumber,
-        cccd: tiepNhanBenhNhan.idNumber,
-        ngay_cap_cccd: tiepNhanBenhNhan.issueDate || undefined,
-      dia_chi: `${tiepNhanBenhNhan.houseNumber} ${tiepNhanBenhNhan.phuongXa || tiepNhanBenhNhan.ward}`.trim(),
-      so_nha: tiepNhanBenhNhan.houseNumber,
-      phuong_xa_id: tiepNhanBenhNhan.phuongXa || tiepNhanBenhNhan.ward,
-        nghe_nghiep_id: tiepNhanBenhNhan.occupation,
-        dan_toc_id: tiepNhanBenhNhan.ethnicityCode || undefined,
-        quoc_tich_id: tiepNhanBenhNhan.nationalityCode || undefined,
-      },
-      the_bao_hiem: {
-        benh_nhan_id: dangKyKham.patientCode,
-        ngay: new Date().toISOString(),
-        ma_the: theBaoHiem.insuranceNumber,
-        ma_quyen_loi: theBaoHiem.benefitLevel || "0",
-        muc_huong_bh: parseInt(theBaoHiem.benefitLevel) || 0,
-        gt_the_tu: theBaoHiem.insuranceFrom || undefined,
-        gt_the_den: theBaoHiem.insuranceTo || undefined,
-        ma_dkbd: theBaoHiem.registrationPlace,
-        ten_dkbd: theBaoHiem.registrationPlace,
-        ma_tuyen_truoc: theBaoHiem.referralPlace,
-        ten_tuyen_truoc: theBaoHiem.tenNoiChuyenTuyen,
-        so_phieu_tuyen_truoc: theBaoHiem.transferNumber,
-        dia_chi: theBaoHiem.addressOnCard,
-        ma_kv: theBaoHiem.maKV,
-        ngay_du5_nam: theBaoHiem.ngayDu5Nam || undefined,
-        ghi_chu: theBaoHiem.diagnosisText,
-      },
-      ngay_kham: new Date().toISOString(),
-      phong_ban_id: dangKyKham.department || "NTQ",
-      doi_tuong_id: theBaoHiem.insuranceNumber ? "BH" : "VP",
-      loai_kcb_id: dangKyKham.visitType || "01",
-      trang_thai_kham: 1,
-      so_thu_tu: 0,
-      uu_tien_id: dangKyKham.uuTien || dangKyKham.priorityLevel || "1",
-      bs_gioi_thieu_id: dangKyKham.referrer || "TD",
-      ma_the: theBaoHiem.insuranceNumber,
-      ma_quyen_loi: theBaoHiem.benefitLevel,
-      muc_huong_bh: parseInt(theBaoHiem.benefitLevel) || undefined,
-      the_tu_ngay: theBaoHiem.insuranceFrom || undefined,
-      the_den_ngay: theBaoHiem.insuranceTo || undefined,
-      ma_dkbd: theBaoHiem.registrationPlace,
-      ma_tuyen_truoc: theBaoHiem.referralPlace,
-      so_phieu_tuyen_truoc: theBaoHiem.transferNumber,
-      ma_kv: theBaoHiem.maKV,
-      ngay_du5_nam: theBaoHiem.ngayDu5Nam || undefined,
+      benh_nhan: benhNhan,
+      dang_ky_kham: dangKy,
+      the_bhyt: theBhyt,
     }
   }
 

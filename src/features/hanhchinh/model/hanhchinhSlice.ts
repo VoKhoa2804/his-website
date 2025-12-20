@@ -18,6 +18,7 @@ export interface HanhChinhOption {
   id: string
   ma?: string
   ten?: string
+  meta?: Record<string, any>
 }
 
 interface LoadParams {
@@ -61,6 +62,7 @@ function normalizeOptions(rawList: any[] = []): HanhChinhOption[] {
       id: String(item.Id ?? item.id ?? item.Ma ?? item.ma ?? item.ten ?? item.Ten ?? ""),
       ma: String(item.Ma ?? item.ma ?? ""),
       ten: String(item.Ten ?? item.ten ?? ""),
+      meta: item,
     }))
     .filter((item) => item.id || item.ma || item.ten)
     .sort((a, b) => (a.ten || "").localeCompare(b.ten || "", "vi"))

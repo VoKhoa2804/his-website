@@ -1,5 +1,5 @@
 import { LookupAutocomplete, type LookupValue } from "@/shared/ui/lookup-autocomplete"
-import { Label } from "@/shared/ui/label"
+import { ValidatedField } from "@/shared/ui/validated-field"
 import { cn } from "@/shared/utils/cn"
 
 export type LookupOption = {
@@ -25,6 +25,16 @@ export interface LookupFieldProps {
   onSelectOption?: (option: LookupOption) => void
   showAllOnEmpty?: boolean
   emptyResultLimit?: number
+  touched?: boolean
+  dirty?: boolean
+  submitted?: boolean
+  valuePresent?: boolean
+  isTouched?: boolean
+  isDirty?: boolean
+  isSubmitted?: boolean
+  hasValue?: boolean
+  helperText?: string
+  fieldPath?: string
 }
 
 function mapToLookupAutocompleteData(options: LookupOption[]) {
@@ -53,6 +63,16 @@ export function LookupField({
   onSelectOption,
   showAllOnEmpty,
   emptyResultLimit,
+  touched,
+  dirty,
+  submitted,
+  valuePresent,
+  isTouched,
+  isDirty,
+  isSubmitted,
+  hasValue,
+  helperText,
+  fieldPath,
 }: LookupFieldProps) {
   const dataset = mapToLookupAutocompleteData(options)
   const isDisabled = disabled || loading
@@ -76,37 +96,50 @@ export function LookupField({
       }
     : undefined
 
+  const computedHelperText =
+    helperText || (!loading && dataset.length === 0 && !onSearch ? emptyText : undefined)
+  const resolvedHasValue = valuePresent ?? hasValue ?? Boolean(value ?? valueLabel)
+  const resolvedTouched = touched ?? isTouched
+  const resolvedDirty = dirty ?? isDirty
+  const resolvedSubmitted = submitted ?? isSubmitted
+
   return (
-    <div className="space-y-1.5">
-      <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-        {label}
-        {required && <span className="text-red-600">*</span>}
-      </Label>
-
-      <LookupAutocomplete
-        key={`${label}-${value || "empty"}`}
-        localData={dataset}
-        minChars={0}
-        take={50}
-        placeholder={resolvedPlaceholder}
-        className={cn(isDisabled && "pointer-events-none opacity-60")}
-        inputClassName="h-9 text-sm"
-        initialId={value}
-        initialName={currentOption?.label ?? valueLabel}
-        showHeader={false}
-        showBorders
-        popupAppendToBody={false}
-        onSelect={(selection) => handleSelect(selection)}
-        onFetchData={handleFetchData}
-        showAllOnEmpty={showAllOnEmpty}
-        emptyResultLimit={emptyResultLimit}
-      />
-
-      {!loading && dataset.length === 0 && !onSearch && (
-        <p className="text-xs text-gray-500">{emptyText}</p>
+    <ValidatedField
+      label={label}
+      required={required}
+      error={error}
+      helperText={computedHelperText}
+      touched={resolvedTouched}
+      dirty={resolvedDirty}
+      submitted={resolvedSubmitted}
+      valuePresent={resolvedHasValue}
+      fieldPath={fieldPath}
+      className={cn(isDisabled && "pointer-events-none opacity-60")}
+    >
+      {({ validationState, showStatusIcon, statusIconAriaLabel }) => (
+        <LookupAutocomplete
+          key={`${label}-${value || "empty"}`}
+          localData={dataset}
+          minChars={0}
+          take={50}
+          placeholder={resolvedPlaceholder}
+          inputClassName="h-9 text-sm"
+          initialId={value}
+          initialName={currentOption?.label ?? valueLabel}
+          showHeader={false}
+          showBorders
+          popupAppendToBody={false}
+          onSelect={handleSelect}
+          onFetchData={handleFetchData}
+          showAllOnEmpty={showAllOnEmpty}
+          emptyResultLimit={emptyResultLimit}
+          disabled={isDisabled}
+          validationState={validationState}
+          showStatusIcon={showStatusIcon}
+          statusIconMode="auto"
+          statusIconAriaLabel={statusIconAriaLabel}
+        />
       )}
-
-      {error && <p className="text-xs text-red-600">{error}</p>}
-    </div>
+    </ValidatedField>
   )
 }

@@ -4,7 +4,7 @@ export { useTiepNhanForm } from './hooks/useTiepNhanForm'
 export type { TiepNhanFormData } from './context/TiepNhanFormContext'
 
 // Export types
-export type { TiepNhanRequest, TiepNhanResponse, TiepNhanResponseData } from './model/tiepNhanTypes'
+export type { TiepNhanRequest, TiepNhanResponse } from './model/tiepNhanTypes'
 
 // Export API
 export { tiepNhanApi } from './api/tiepNhanApi'
