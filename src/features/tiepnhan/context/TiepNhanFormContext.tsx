@@ -1,5 +1,7 @@
 import { createContext, useState, ReactNode } from "react"
-import type { TiepNhanRequest } from "../model/tiepNhanTypes"
+import { store } from "@/app/store"
+import type { HanhChinhOption } from "@/features/hanhchinh/model/hanhchinhSlice"
+import type { PhongKhamInfo, TiepNhanRequest } from "../model/tiepNhanTypes"
 import type { ValidateContext, ValidationResult, FieldErrorMap } from "../model/tiepnhan.validation"
 import { validateTiepNhanForm } from "../model/tiepnhan.validation"
 
@@ -93,6 +95,83 @@ const normalizeGenderToCode = (value: string | number | null | undefined): 0 | 1
   }
 
   return 0
+}
+
+const PHONG_BAN_KEY = "PhongBan"
+
+const toOptionalString = (value: unknown): string | undefined => {
+  if (value === undefined || value === null) return undefined
+  const str = String(value).trim()
+  return str ? str : undefined
+}
+
+const toOptionalNumber = (value: unknown): number | undefined => {
+  if (value === undefined || value === null || value === "") return undefined
+  const num = typeof value === "number" ? value : Number(value)
+  return Number.isFinite(num) ? num : undefined
+}
+
+const toOptionalBoolean = (value: unknown): boolean | undefined => {
+  if (value === undefined || value === null) return undefined
+  if (typeof value === "boolean") return value
+  const normalized = String(value).trim().toLowerCase()
+  if (["1", "true", "yes"].includes(normalized)) return true
+  if (["0", "false", "no"].includes(normalized)) return false
+  return undefined
+}
+
+const pickMetaValue = (meta: Record<string, any> | undefined, keys: string[]): unknown => {
+  if (!meta) return undefined
+  for (const key of keys) {
+    if (meta[key] !== undefined && meta[key] !== null && meta[key] !== "") {
+      return meta[key]
+    }
+  }
+  return undefined
+}
+
+const findPhongBanOption = (code: string): HanhChinhOption | undefined => {
+  if (!code) return undefined
+  const state = store.getState()
+  const options = state.hanhchinh?.optionsByKey?.[PHONG_BAN_KEY] ?? []
+  return options.find((option) => option.ma === code || option.id === code)
+}
+
+const buildPhongKhamInfo = (roomValue: string): PhongKhamInfo | undefined => {
+  if (!roomValue) return undefined
+  const option = findPhongBanOption(roomValue)
+
+  if (!option) {
+    return {
+      id: roomValue,
+      ma: roomValue,
+      ten: roomValue,
+    }
+  }
+
+  const meta = option.meta ?? {}
+
+  const info: PhongKhamInfo = {
+    id: toOptionalString(pickMetaValue(meta, ["Id", "ID", "PhongBanId", "PhongKhamId"])) ?? option.id ?? roomValue,
+    ma: toOptionalString(pickMetaValue(meta, ["Ma", "MA", "PhongBanMa", "PhongKhamMa"])) ?? option.ma ?? option.id ?? roomValue,
+    ten:
+      toOptionalString(pickMetaValue(meta, ["Ten", "TEN", "PhongBanTen", "PhongKhamTen"])) ??
+      option.ten ??
+      option.ma ??
+      roomValue,
+    vp_loai_thu_id: toOptionalString(pickMetaValue(meta, ["VpLoaiThuId", "VP_LoaiThuId", "vp_loai_thu_id"])),
+    ten_loai_thu: toOptionalString(pickMetaValue(meta, ["TenLoaiThu", "ten_loai_thu", "Ten_Loai_Thu"])),
+    don_vi: toOptionalString(pickMetaValue(meta, ["DonVi", "don_vi"])),
+    vp_nhom_id: toOptionalString(pickMetaValue(meta, ["VpNhomId", "vp_nhom_id", "VP_NhomId"])),
+    don_gia: toOptionalNumber(pickMetaValue(meta, ["DonGia", "don_gia", "Gia", "GiaDichVu"])),
+    don_gia_bhyt: toOptionalNumber(pickMetaValue(meta, ["DonGiaBHYT", "don_gia_bhyt", "GiaBHYT"])),
+    don_gia_dv: toOptionalNumber(pickMetaValue(meta, ["DonGiaDV", "don_gia_dv", "GiaDV"])),
+    tyle_bhtt: toOptionalNumber(pickMetaValue(meta, ["TyleBhtt", "TyLeBhtt", "tyle_bhtt"])),
+    chenh_lech: toOptionalBoolean(pickMetaValue(meta, ["ChenhLech", "chenh_lech"])),
+    hien_thi: toOptionalBoolean(pickMetaValue(meta, ["HienThi", "hien_thi"])),
+  }
+
+  return info
 }
 
 interface TiepNhanFormContextType {
@@ -256,6 +335,8 @@ export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
       dien_thoai_nguoi_than: tiepNhanBenhNhan.contactPhoneNumber || undefined,
     }
 
+    const phongKhamInfo = buildPhongKhamInfo(dangKyKham.room)
+
     const dangKy: TiepNhanRequest["dang_ky_kham"] = {
       ma_ho_so: dangKyKham.receptionCode || undefined,
       ma_benh_nhan: dangKyKham.patientCode || undefined,
@@ -266,8 +347,7 @@ export function TiepNhanFormProvider({ children }: { children: ReactNode }) {
       doi_tuong_kcb_id: dangKyKham.department,
       uu_tien_id: dangKyKham.uuTien || dangKyKham.priorityLevel || undefined,
       bs_gioi_thieu_id: dangKyKham.referrer || undefined,
-      phong_kham_id: dangKyKham.room,
-      phong_kham: undefined,
+      phong_kham: phongKhamInfo,
       chan_doan_so_bo: theBaoHiem.chanDoan || theBaoHiem.diagnosisText || undefined,
       ghi_chu: theBaoHiem.icdDiagnosis || undefined,
     }
